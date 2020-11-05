@@ -101,7 +101,8 @@ export default {
       curPosition: 0,
       files: [],
       messageFocused: false,
-      messageText: ""
+      messageText: "",
+      formData: new FormData()
     };
   },
   computed: {
@@ -137,15 +138,9 @@ export default {
       //TODO проверка файлов на размер имя и количество
       //TODO рендерить дубликат <input>
       //TODO исправить проблему с добовлением файла в первы блок <Message> когда их больше 1
+      let regexp = /[ .\w-]+?(?=\.)/i;
 
-      let clone = e.target.cloneNode();
-      console.log(clone)
-
-      this.files.push({
-        input: clone,
-        name: e.target.value
-      });
-
+      this.formData.append("images[]", e.target.files[0]);
       e.target.value = "";
     },
     removeThisFile(e) {
