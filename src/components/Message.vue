@@ -16,7 +16,13 @@
 
     <div class="wdg-add-comment__bottom">
       <div class="wdg-add-comment__control">
-        <button class="wdg-send wdg-btn-blue">Отправить</button>
+        <button
+          class="wdg-send wdg-btn-blue"
+          type="button"
+          @click="getFormData"
+        >
+          Отправить
+        </button>
 
         <div class="wdg-file" v-if="files.length">
           <div class="wdg-text">Прикреплено {{ files.length }} файла:</div>
@@ -101,8 +107,7 @@ export default {
       curPosition: 0,
       files: [],
       messageFocused: false,
-      messageText: "",
-      formData: new FormData()
+      messageText: ""
     };
   },
   computed: {
@@ -122,10 +127,10 @@ export default {
       let smile = e.target.innerText;
       textarea.value = textarea.value.splice(this.curPosition, 0, smile);
       this.curPosition = this.curPosition + smile.length;
-      // textarea.focus();
       this.messageText = textarea.value;
     },
     cursorPosition(e) {
+      // получаем координаты курсора из textarea
       let content = e.target;
       if ((content.selectionStart != null) && (content.selectionStart != undefined)) {
         let position = content.selectionStart;
@@ -135,23 +140,67 @@ export default {
       }
     },
     addFile(e) {
+      //TODO исправить загрузку файлов и если поллучится сделать мулти загрузку
       //TODO проверка файлов на размер имя и количество
       //TODO рендерить дубликат <input>
       //TODO исправить проблему с добовлением файла в первы блок <Message> когда их больше 1
-      let regexp = /[ .\w-]+?(?=\.)/i;
 
-      this.formData.append("images[]", e.target.files[0]);
-      e.target.value = "";
+      // доступные форматы
+      let format = [
+        "jpg",
+        "jpeg",
+        "png",
+        "webp",
+        "svg",
+        "gif",
+        "pdf",
+        "doc",
+        "docx",
+        "ppt",
+        "txt"
+      ];
+      // регулярка для получения имя и формат файла
+      let reg = /[\/\\]([^\\\/:*?\"<>|]+)$/im;
+      let file = reg.exec(e.target.value)[1].split(".");
+      // имя
+      let fileName = file[0];
+      // формат
+      let fileFormat = file[1];
+
+      // если формат не совпадает с форматами из мссива то отменяем выполнение функций
+      if (!format.includes(fileFormat)) {
+        alert(String(format));
+        return 0;
+      }
+
+      // добовляем в массив выбраный файл
+      this.files.push({
+        name: fileName + "." + fileFormat || e.target.value,
+        format: fileFormat,
+        file: e.target.files[0]
+      });
     },
     removeThisFile(e) {
       let el = e.target;
       let index = el.dataset.index;
 
+      // удаляем из масива выбраный файл
       this.files[index] = undefined;
       this.files = this.files.filter(item => {
         console.log(item);
         return item ? item : 0;
       });
+    },
+    getFormData() {
+      let form = new FormData;
+
+      form.append("text", this.messageText);
+      this.files.map(item => {
+        form.append('file[]', item.file, item.name);
+      });
+
+      console.log(form.getAll("file[]"));
+      console.log("Submit", form);
     }
   }
 }
