@@ -9,12 +9,17 @@ export default new Vuex.Store({
   state: {
     apiUrl: "https://commentus.net/api/",
     apiAuth: "https://commentus.net/authorize",
-    siteId: commentus_widget.site_id,
-    lang: commentus_widget.lang,
+    siteId: commentus_widget[0].site_id,
+    lang: commentus_widget[0].lang,
+    theme: commentus_widget[0].theme,
     comments: {},
     userLog: {}
   },
-  getters: {},
+  getters: {
+    IF_HASH() {
+      return !!Cookies.get("commentus_user_hash");
+    }
+  },
   mutations: {
     GET_COMMENT: (state, payload) => {
       if (payload.result === "false") {
@@ -25,21 +30,26 @@ export default new Vuex.Store({
     },
     USER_LOG: (state, payload) => {
       state.userLog = payload.data;
+      console.log("User Log response: ", payload.data)
     }
+    // LOGIN: (state, payload) => {
+    //   let data = new FormData();
+    // }
   },
   actions: {
     GET_COMMENT(self) {
       let data = new FormData();
       data.append("method", "get_comments");
-      data.append("site_id", 1);
+      data.append("site_id", self.state.siteId);
       data.append("url", location.origin);
 
       axios
         .post(self.state.apiUrl, data)
         .then(function(response) {
           self.commit("GET_COMMENT", response);
+          console.log(response.data)
         })
-        .catch(function (error) {
+        .catch(function(error) {
           alert(error);
         });
     },
@@ -63,6 +73,16 @@ export default new Vuex.Store({
           alert(error);
         });
     }
+    // LOGIN({state,commit}, data) {
+    //   axios
+    //     .post(state.apiAuth, data)
+    //     .then(response => {
+    //       console.log(response.data);
+    //     })
+    //     .catch(error => {
+    //       alert(error);
+    //     });
+    // }
   },
   modules: {}
 });

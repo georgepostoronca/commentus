@@ -11,7 +11,7 @@
       @click="cursorPosition"
       v-model="messageText"
       ref="messageTextarea"
-      placeholder="Написать комментарий..."
+      :placeholder="textarea || 'Написать комментарий...'"
     ></textarea>
 
     <div class="wdg-add-comment__bottom">
@@ -73,6 +73,9 @@
 
 export default {
   name: "Message",
+  props: {
+    textarea: String
+  },
   data() {
     return {
       smile: [

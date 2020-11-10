@@ -1,20 +1,27 @@
 <template>
   <div class="wdg-popup">
-
-<!--    Поделиться ссылкой-->
+    <div class="wdg-popup__layout" @click="changeTypePopup('')"></div>
+    <!--    Поделиться ссылкой-->
     <div v-if="popup === 'share'" class="wdg-popup__wrap">
-      <div class="wdg-popup__title">Поделиться ссылкой<br> на комментарий</div>
+      <div class="wdg-popup__title">
+        Поделиться ссылкой<br />
+        на комментарий
+      </div>
 
       <div class="wdg-popup__content">
-        <div class="wdg-copy-link">
-          <div class="wdg-text">https://site.com/article-page.html#comment231234</div>
+        <div class="wdg-copy-link" @click="copyClipboard($event)">
+          <input class="wdg-copy-link__input" type="text" :value="shareLink" />
+          <div class="wdg-text">
+            {{ shareLink }}
+          </div>
 
           <div class="wdg-i wdg-icon-copy"></div>
         </div>
 
         <div class="wdg-soc-list">
           <a href="" class="wdg-item wdg-icon-fb">
-            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
+            <span class="path1"></span><span class="path2"></span
+            ><span class="path3"></span><span class="path4"></span>
           </a>
 
           <a href="" class="wdg-item wdg-icon-vk">
@@ -29,34 +36,44 @@
         </div>
       </div>
 
-      <div class="wdg-popup__close"></div>
+      <div class="wdg-popup__close" @click="changeTypePopup('')"></div>
     </div>
 
-<!--    Войти через почту-->
+    <!--    Войти через почту-->
     <div v-if="popup === 'email'" class="wdg-popup__wrap">
       <div class="wdg-popup__title">Войти через почту</div>
 
       <div class="wdg-popup__content">
         <div class="wdg-link-back">
-          <a class="wdg-link-grey" href="">
+          <a
+            class="wdg-link-grey"
+            href=""
+            @click.prevent="changeTypePopup('login')"
+          >
             <span class="wdg-i">←</span>
             <div class="wdg-t">Войти через соц. сети</div>
           </a>
         </div>
 
-
-        <form class="wdg-form">
+        <form
+          class="wdg-form"
+          action="https://commentus.net/authorize"
+          method="post"
+          @submit.prevent="submitForm"
+        >
           <div class="wdg-form__row">
             <div class="wdg-text">Ваше имя:</div>
             <div class="wdg-field">
-              <input type="text" class="wdg-inp" >
+              <input type="text" name="name" class="wdg-inp" :class="{'error': !validName}" required v-model="name"/>
+              <span>Требуется указать имя</span>
             </div>
           </div>
 
           <div class="wdg-form__row">
             <div class="wdg-text">E-Mail:</div>
             <div class="wdg-field">
-              <input type="text" class="wdg-inp" >
+              <input type="email" name="email" class="wdg-inp" :class="{'error': !validEmail}" required v-model="email"/>
+              <span>Требуется указать email</span>
             </div>
           </div>
 
@@ -67,70 +84,81 @@
 
             <div class="wdg-r">
               <div class="wdg-auth-notify">
-                Авторизуясь, вы соглашаетесь с <a href="">правилами использования</a> и даете согласие на <a href="">обработку персональных данных</a>.
+                Авторизуясь, вы соглашаетесь с
+                <a href="">правилами использования</a> и даете согласие на
+                <a href="">обработку персональных данных</a>.
               </div>
             </div>
           </div>
-
         </form>
       </div>
 
-      <div class="wdg-popup__close"></div>
+      <div class="wdg-popup__close" @click="changeTypePopup('')"></div>
     </div>
 
-<!--    авторизоваться-->
-    <div v-if="popup === 'login'"  class="wdg-popup">
-      <div class="wdg-popup__wrap">
-        <div class="wdg-popup__title">Необходимо<br> авторизоваться:</div>
+    <!--    авторизоваться-->
+    <div v-if="popup === 'login'" class="wdg-popup__wrap">
+      <div class="wdg-popup__title">
+        Необходимо<br />
+        авторизоваться:
+      </div>
 
-        <div class="wdg-popup__content">
-          <div class="wdg-soc-links">
-            <a href="" class="wdg-item">
-              <span class="wdg-icon-google"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span></span>
-              <span class="wdg-t">Google</span>
-            </a>
+      <div class="wdg-popup__content">
+        <div class="wdg-soc-links">
+          <a href="" class="wdg-item">
+            <span class="wdg-icon-google"
+              ><span class="path1"></span><span class="path2"></span
+              ><span class="path3"></span><span class="path4"></span
+            ></span>
+            <span class="wdg-t">Google</span>
+          </a>
 
-            <a href="" class="wdg-item">
-              <span class="wdg-icon-fb"></span>
-              <span class="wdg-t">Facebook</span>
-            </a>
+          <a href="" class="wdg-item">
+            <span class="wdg-icon-fb"></span>
+            <span class="wdg-t">Facebook</span>
+          </a>
 
-            <a href="" class="wdg-item">
-              <span class="wdg-icon-telegram-1"><span class="path1"></span><span class="path2"></span></span>
-              <span class="wdg-t">Telegram</span>
-            </a>
+          <a href="" class="wdg-item">
+            <span class="wdg-icon-telegram-1"
+              ><span class="path1"></span><span class="path2"></span
+            ></span>
+            <span class="wdg-t">Telegram</span>
+          </a>
 
-            <a href="" class="wdg-item">
-              <span class="wdg-icon-vk"><span class="path1"></span><span class="path2"></span></span>
-              <span class="wdg-t">VK</span>
-            </a>
+          <a href="" class="wdg-item">
+            <span class="wdg-icon-vk"
+              ><span class="path1"></span><span class="path2"></span
+            ></span>
+            <span class="wdg-t">VK</span>
+          </a>
 
-            <a href="" class="wdg-item">
-              <span class="wdg-icon-twitter"></span>
-              <span class="wdg-t">Twitter</span>
-            </a>
+          <a href="" class="wdg-item">
+            <span class="wdg-icon-twitter"></span>
+            <span class="wdg-t">Twitter</span>
+          </a>
 
-            <a href="" class="wdg-item">
-              <span class="wdg-icon-minter"><span class="path1"></span><span class="path2"></span></span>
-              <span class="wdg-t">Minter ID</span>
-            </a>
+          <a href="" class="wdg-item">
+            <span class="wdg-icon-minter"
+              ><span class="path1"></span><span class="path2"></span
+            ></span>
+            <span class="wdg-t">Minter ID</span>
+          </a>
 
-            <a href="" class="wdg-item">
-              <span class="wdg-icon-mail"></span>
-              <span class="wdg-t">Через почту</span>
-            </a>
-          </div>
-
-
-          <div class="wdg-auth-notify">
-            Авторизуясь, вы соглашаетесь с <a href="">правилами использования</a> и даете согласие на <a href="">обработку персональных данных</a>.
-          </div>
+          <a href="" class="wdg-item" @click.prevent="changeTypePopup('email')">
+            <span class="wdg-icon-mail"></span>
+            <span class="wdg-t">Через почту</span>
+          </a>
         </div>
 
-        <div class="wdg-popup__close"></div>
+        <div class="wdg-auth-notify">
+          Авторизуясь, вы соглашаетесь с
+          <a href="">правилами использования</a> и даете согласие на
+          <a href="">обработку персональных данных</a>.
+        </div>
       </div>
-    </div>
 
+      <div class="wdg-popup__close" @click="changeTypePopup('')"></div>
+    </div>
   </div>
 </template>
 
@@ -139,16 +167,100 @@ export default {
   name: "Popup",
   data() {
     return {
-
+      name: "",
+      email: ""
+    };
+  },
+  computed: {
+    validName() {
+      return !(this.name.length <= 2);
+    },
+    validEmail() {
+      let re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(this.email);
     }
   },
   props: {
     popup: String,
-    default: true
+    shareLink: String
+  },
+  methods: {
+    changeTypePopup(type) {
+      this.$emit("popupType", type);
+    },
+    submitForm({ target: form }) {
+      if (this.validName && this.validEmail) {
+        form.submit();
+        form.reset();
+      }
+    },
+    copyClipboard({ target }) {
+      let input = target.parentElement.querySelector("input");
+      let text = target.parentElement.querySelector(".wdg-text");
+
+      input.select();
+      input.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+
+      let innerText = text.innerText;
+      text.innerText = "Текст скопирован в буфер обмена";
+      target.parentElement.style.pointerEvents = "none";
+      setTimeout(() => {
+        text.innerText = innerText;
+        target.parentElement.style.pointerEvents = "auto";
+      }, 1000);
+    }
   }
-}
+};
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.wdg-popup {
+  display: none;
 
+  .wdg-popup__layout {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: transparent;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__close {
+    user-select: none;
+  }
+}
+
+.wdg-field {
+  input {
+    &.error {
+      & ~ span {
+        display: block;
+      }
+    }
+  }
+
+  span {
+    display: none;
+    margin-top: 5px;
+    color: #f93f3f;
+  }
+}
+
+.wdg.wdg--popup-active {
+  .wdg-popup {
+    display: flex;
+  }
+}
+
+.wdg-copy-link__input {
+  //width: 0;
+  //height: 0;
+  //opacity: 0;
+  position: absolute;
+  background: transparent;
+  z-index: -1;
+  pointer-events: none;
+}
 </style>
