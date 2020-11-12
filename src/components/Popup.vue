@@ -263,4 +263,8 @@ export default {
   z-index: -1;
   pointer-events: none;
 }
+
+.wdg-popup {
+  position: fixed;
+}
 </style>

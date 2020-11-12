@@ -9,7 +9,7 @@
     >
       <div class="wdg__wrap">
         <div class="wdg-top">
-          <div class="wdg-title">48 комментариев</div>
+          <div class="wdg-title">{{ commentsArray.length }} комментариев page: {{ commentPage }}</div>
 
           <div class="wdg-main-sort">
             <div
@@ -45,15 +45,18 @@
         <button @click="popup = 'share'">Popup Share</button>
         <button @click="popup = 'email'">Popup Email</button>
         <button @click="popup = 'login'">Popup Login</button>
+        <span>{{ $store.state.hash }}</span>
+        <br />
+        <span>{{ $store.state.userData }}</span>
 
-        <Message />
+        <Message type="root"/>
 
-        <div class="wdg-user">
+        <div class="wdg-user" v-if="userData">
           <span class="wdg-user__ava">
-            <img src="img/ava1.jpg" alt="IMG" />
+            <img :src="userData.avatar" alt="IMG" />
           </span>
-          <span class="wdg-user__text">Вы вошли как Антон Корабликов.</span>
-          <a class="wdg-user__exit" href="">Выйти</a>
+          <span class="wdg-user__text">Вы вошли как {{ userData.name }}.</span>
+          <button class="wdg-user__exit" @click="logoutUser">Выйти</button>
         </div>
 
         <div class="wdg-notify">
@@ -68,6 +71,7 @@
             v-for="(item, index) in commentsArray"
             :key="index"
             :data="item.comment"
+            :index="index"
             reply="Написать ответ..."
             @popupType="popupClose($event)"
             @shareData="popupShare($event)"
@@ -85,7 +89,7 @@
           </Comment>
         </div>
 
-        <button class="wdg-comments__more">
+        <button class="wdg-comments__more" v-if="pageNotFinish" @click="moreComment">
           Показать ещё
         </button>
       </div>
@@ -146,11 +150,16 @@ export default {
       } else {
         return "";
       }
-      // return e.$store.state.theme || "light";
+    },
+    commentPage: e => {
+      return e.$store.state.page;
+    },
+    pageNotFinish: e => {
+      return e.$store.state.pageNotFinish;
     },
     commentsArray: e => {
-      let store = e.$store.state.comments || [];
-      let data = store.data || [];
+      let data = e.$store.state.comments || [];
+      // console.log(data);
       let cmt = [];
 
       data.forEach(item => {
@@ -169,7 +178,12 @@ export default {
         }
       });
 
+      // console.log("CMT", cmt);
+
       return cmt.length ? cmt : [];
+    },
+    userData: e => {
+      return e.$store.state.userData.data;
     }
   },
   methods: {
@@ -181,13 +195,18 @@ export default {
     },
     hideSelect() {
       this.sortOpen = false;
+    },
+    moreComment() {
+      this.$store.dispatch("GET_MORE_COMMENT");
+    },
+    logoutUser() {
+      this.$store.commit("LOGOUT_USER");
     }
   },
   created() {
     this.$store.dispatch("GET_COMMENT");
-    this.$store.dispatch("USER_LOG");
-
-    console.log("IF_HASH", this.$store.getters.IF_HASH);
+    this.$store.dispatch("GET_COOKIE");
+    this.$store.dispatch("GET_DRAFT");
   },
   directives: {
     ClickOutside
@@ -196,7 +215,6 @@ export default {
     popup(newVal) {
       if (newVal === "") {
         this.popupShareLink = "";
-
       }
     }
   }
@@ -210,5 +228,10 @@ export default {
 
 .wdg-comment__ava {
   overflow: hidden;
+}
+
+button.wdg-user__exit {
+  border: 0;
+  background-color: transparent;
 }
 </style>

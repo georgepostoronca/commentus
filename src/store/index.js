@@ -12,77 +12,176 @@ export default new Vuex.Store({
     siteId: commentus_widget[0].site_id,
     lang: commentus_widget[0].lang,
     theme: commentus_widget[0].theme,
-    comments: {},
-    userLog: {}
+    comments: [],
+    hash: false,
+    userData: {},
+    page: 1,
+    pageNotFinish: true,
+    draft: false
   },
-  getters: {
-    IF_HASH() {
-      return !!Cookies.get("commentus_user_hash");
-    }
-  },
+  getters: {},
   mutations: {
+    LOGOUT_USER: state => {
+      state.hash = false;
+      state.userData = {};
+    },
     GET_COMMENT: (state, payload) => {
       if (payload.result === "false") {
         alert(payload.data);
       } else {
-        state.comments = payload.data;
+        state.comments = [...payload.data.data];
       }
     },
-    USER_LOG: (state, payload) => {
-      state.userLog = payload.data;
-      console.log("User Log response: ", payload.data)
+    GET_MORE_COMMENT: (state, payload) => {
+      if (payload.result === "false") {
+        alert(payload.data);
+      } else {
+        state.comments = state.comments.concat(payload.data);
+      }
+    },
+    SET_USER_DATA: (state, payload) => {
+      state.userData = payload;
+    },
+    DRAFT: (state, payload) => {
+      state.draft = payload;
     }
-    // LOGIN: (state, payload) => {
-    //   let data = new FormData();
-    // }
   },
   actions: {
-    GET_COMMENT(self) {
+    AJAX({ commit }, data) {
+      axios
+        .post(data.url, data.data)
+        .then(function(response) {
+          if (response.data.error || response.data.result == "false") {
+            alert(response.data.error || response.data.data);
+            return false;
+          }
+
+          if (data.callback) {
+            data.callback(response);
+          } else {
+            return true;
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    LIKE_DISLIKE({ state, dispatch }, payload) {
+      let formData = new FormData();
+      formData.append("method", "like");
+      formData.append("comment_id", payload.id);
+      formData.append("commentus_user_id", state.userData.data.user_id);
+      formData.append("commentus_hash", state.hash);
+
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
+        callback(result) {
+          console.log(result);
+        }
+      });
+    },
+    GET_DRAFT({ state, commit, dispatch }) {
+      let method = "get_draft";
+      let formData = new FormData();
+      formData.append("method", method);
+      formData.append("commentus_user_hash", state.hash);
+      formData.append("url", location.href);
+      formData.append("site_id", state.siteId);
+
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
+        callback({ data }) {
+          if(data.result !== "false") {
+            commit("DRAFT", data.draft);
+          }
+        }
+      });
+    },
+    SEND_COMMENT({ state, commit, dispatch }) {
+      let method = "post_comment";
+      let formData = new FormData();
+      formData.append("method", method);
+      formData.append("commentus_user_hash", state.hash);
+      formData.append("url", location.href);
+      formData.append("site_id", state.siteId);
+
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
+        callback({ data }) {
+          if(data.result !== "false") {
+            commit("DRAFT", data.draft);
+          }
+        }
+      });
+    },
+    GET_COMMENT({ state, commit }) {
       let data = new FormData();
       data.append("method", "get_comments");
-      data.append("site_id", self.state.siteId);
+      data.append("site_id", state.siteId);
       data.append("url", location.origin);
 
       axios
-        .post(self.state.apiUrl, data)
+        .post(state.apiUrl, data)
         .then(function(response) {
-          self.commit("GET_COMMENT", response);
-          console.log(response.data)
+          // console.log(response.data);
+          commit("GET_COMMENT", response);
         })
         .catch(function(error) {
           alert(error);
         });
     },
-    USER_LOG({ state, commit }) {
-      let data = new FormData();
-      data.append("method", "check_user_login");
+    GET_MORE_COMMENT({ state, commit, dispatch }) {
+      if (!state.pageNotFinish) return false;
 
-      if (Cookies.get("commentus_user_hash")) {
-        data.append("check_user_login", Cookies.get("commentus_user_hash"));
+      let formData = new FormData();
+      formData.append("method", "get_comments");
+      formData.append("site_id", state.siteId);
+      formData.append("url", location.origin);
+
+      state.page = state.page + 1;
+      formData.append("page", state.page);
+
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
+        callback(response) {
+          if (!response.data.data.length) {
+            state.page = state.page - 1;
+            state.pageNotFinish = false;
+          } else {
+            commit("GET_MORE_COMMENT", response.data);
+          }
+        }
+      });
+    },
+    GET_COOKIE({ state, dispatch, commit }) {
+      let hash = "commentus_user_hash";
+      let formData = new FormData();
+      formData.append("method", "check_user_login");
+
+      if (Cookies.get(hash)) {
+        state.hash = Cookies.get(hash);
+        formData.append(hash, Cookies.get(hash));
       }
 
-      axios
-        .post(state.apiUrl, data)
-        .then(response => {
-          console.log(response.data);
-          if(response.data.commentus_user_hash) {
-            Cookies.set("commentus_user_hash", response.data.commentus_user_hash, { expires: 7 });
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
+        callback({ data }) {
+          if (data.result === "false") {
+            Cookies.set(hash, data[hash], {
+              expires: 7
+            });
+            dispatch("GET_COOKIE");
+          } else if (data.result === "true") {
+            commit("SET_USER_DATA", data);
           }
-        })
-        .catch(error => {
-          alert(error);
-        });
+        }
+      });
     }
-    // LOGIN({state,commit}, data) {
-    //   axios
-    //     .post(state.apiAuth, data)
-    //     .then(response => {
-    //       console.log(response.data);
-    //     })
-    //     .catch(error => {
-    //       alert(error);
-    //     });
-    // }
   },
   modules: {}
 });
