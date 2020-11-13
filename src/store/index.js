@@ -51,9 +51,16 @@ export default new Vuex.Store({
       axios
         .post(data.url, data.data)
         .then(function(response) {
-          if (response.data.error || response.data.result == "false") {
-            alert(response.data.error || response.data.data);
-            return false;
+          if (response.data.error || response.data.result === "false") {
+            if (response.data.error) {
+              alert(response.data.error);
+              return false;
+            }
+
+            if (response.data.data) {
+              alert(response.data.data);
+              return false;
+            }
           }
 
           if (data.callback) {
@@ -67,15 +74,14 @@ export default new Vuex.Store({
         });
     },
     LIKE_DISLIKE({ state, dispatch }, payload) {
-      let formData = new FormData();
-      formData.append("method", "like");
-      formData.append("comment_id", payload.id);
-      formData.append("commentus_user_id", state.userData.data.user_id);
-      formData.append("commentus_hash", state.hash);
+      payload.append("method", "like");
+      payload.append("comment_id", payload.id);
+      payload.append("commentus_user_id", state.userData.data.user_id);
+      payload.append("commentus_user_hash", state.hash);
 
       dispatch("AJAX", {
         url: state.apiUrl,
-        data: formData,
+        data: payload,
         callback(result) {
           console.log(result);
         }
@@ -93,45 +99,41 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
-          if(data.result !== "false") {
+          if (data.result !== "false") {
             commit("DRAFT", data.draft);
           }
         }
       });
     },
-    SEND_COMMENT({ state, commit, dispatch }) {
+    SEND_COMMENT({ state, commit, dispatch }, payload) {
       let method = "post_comment";
-      let formData = new FormData();
-      formData.append("method", method);
-      formData.append("commentus_user_hash", state.hash);
-      formData.append("url", location.href);
-      formData.append("site_id", state.siteId);
+
+      payload.append("method", method);
+      payload.append("commentus_user_hash", state.hash);
+      payload.append("url", location.href);
+      payload.append("site_id", state.siteId);
 
       dispatch("AJAX", {
         url: state.apiUrl,
-        data: formData,
+        data: payload,
         callback({ data }) {
-          if(data.result !== "false") {
-            commit("DRAFT", data.draft);
-          }
+          console.log(data);
         }
       });
     },
-    GET_COMMENT({ state, commit }) {
+    GET_COMMENT({ state, commit, dispatch }) {
       let data = new FormData();
       data.append("method", "get_comments");
       data.append("site_id", state.siteId);
       data.append("url", location.origin);
 
-      axios
-        .post(state.apiUrl, data)
-        .then(function(response) {
-          // console.log(response.data);
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: data,
+        callback(response) {
           commit("GET_COMMENT", response);
-        })
-        .catch(function(error) {
-          alert(error);
-        });
+        }
+      });
     },
     GET_MORE_COMMENT({ state, commit, dispatch }) {
       if (!state.pageNotFinish) return false;
@@ -167,16 +169,26 @@ export default new Vuex.Store({
         formData.append(hash, Cookies.get(hash));
       }
 
+      // console.log("Call GET__COOKIE");
+      // console.log("method: ", formData.get("method"));
+      // console.log("hash: ", formData.get("commentus_user_hash"))
+
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
-          if (data.result === "false") {
-            Cookies.set(hash, data[hash], {
-              expires: 7
-            });
-            dispatch("GET_COOKIE");
-          } else if (data.result === "true") {
+          console.log(data);
+          
+          if (!Cookies.get(hash)) {
+            if (data.result === "false") {
+              Cookies.set(hash, data[hash], {
+                expires: 7
+              });
+              dispatch("GET_COOKIE");
+            }
+          }
+
+          if (data.result === "true") {
             commit("SET_USER_DATA", data);
           }
         }

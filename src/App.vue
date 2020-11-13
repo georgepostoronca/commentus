@@ -45,9 +45,10 @@
         <button @click="popup = 'share'">Popup Share</button>
         <button @click="popup = 'email'">Popup Email</button>
         <button @click="popup = 'login'">Popup Login</button>
-        <span>{{ $store.state.hash }}</span>
-        <br />
-        <span>{{ $store.state.userData }}</span>
+
+<!--        <span>{{ $store.state.hash }}</span>-->
+<!--        <br />-->
+<!--        <span>{{ $store.state.userData }}</span>-->
 
         <Message type="root"/>
 
@@ -66,32 +67,42 @@
           <a href="">Подробнее</a>
         </div>
 
-        <div class="wdg-comments">
-          <Comment
-            v-for="(item, index) in commentsArray"
-            :key="index"
-            :data="item.comment"
-            :index="index"
-            reply="Написать ответ..."
-            @popupType="popupClose($event)"
-            @shareData="popupShare($event)"
-          >
+        <div class="wdg-comments__wrap" v-if="commentsArray.length">
+          <div class="wdg-comments">
             <Comment
-              v-if="item.subcomment"
-              v-for="(val, index) in item.subcomment"
-              :key="Number(val.id)"
-              :data="item.subcomment[index]"
+              v-for="(item, index) in commentsArray"
+              :key="index"
+              :data="item.comment"
+              :index="index"
               reply="Написать ответ..."
+              replyto="item.reply_to"
+              id="item.id"
               @popupType="popupClose($event)"
               @shareData="popupShare($event)"
             >
+              <Comment
+                v-if="item.subcomment"
+                v-for="(val, index) in item.subcomment"
+                :key="Number(val.id)"
+                :data="item.subcomment[index]"
+                reply="Написать ответ..."
+                replyto="val.reply_to"
+                id="val.id"
+                @popupType="popupClose($event)"
+                @shareData="popupShare($event)"
+              >
+              </Comment>
             </Comment>
-          </Comment>
-        </div>
+          </div>
 
-        <button class="wdg-comments__more" v-if="pageNotFinish" @click="moreComment">
-          Показать ещё
-        </button>
+          <button
+            class="wdg-comments__more"
+            v-if="pageNotFinish"
+            @click="moreComment"
+          >
+            Показать ещё
+          </button>
+        </div>
       </div>
 
       <Popup

@@ -105,7 +105,7 @@
 
       <div class="wdg-popup__content">
         <div class="wdg-soc-links">
-          <a href="" class="wdg-item">
+          <a :href="'https://commentus.net/account/authorize/google?redirect=' + currentUrl" class="wdg-item">
             <span class="wdg-icon-google"
               ><span class="path1"></span><span class="path2"></span
               ><span class="path3"></span><span class="path4"></span
@@ -168,7 +168,8 @@ export default {
   data() {
     return {
       name: "",
-      email: ""
+      email: "",
+      currentUrl: encodeURI(location.href)
     };
   },
   computed: {

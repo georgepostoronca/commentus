@@ -41,46 +41,17 @@
         </div>
 
         <!-- для раскрытого состояния класс wdg-open -->
-        <Message v-if="ifMessage" :textarea="reply"/>
+        <Message v-if="ifMessage" :textarea="reply" />
       </div>
     </div>
 
     <slot></slot>
-    <!--Sub Comment-->
-<!--    <div class="wdg-comment" v-for="item in data.subcomment">-->
-<!--      <div class="wdg-comment__wrap">-->
-<!--        <div class="wdg-comment__ava &#45;&#45;wdg-anonim">-->
-<!--        </div>-->
-
-<!--        <div class="wdg-comment__inner">-->
-<!--          <div class="wdg-comment__top">-->
-<!--            <div class="wdg-name">Анонимный персонаж</div>-->
-<!--            <div class="wdg-date">6 дней назад</div>-->
-<!--          </div>-->
-
-<!--          <div class="wdg-comment__text">Здесь работали Карл Маркс и Владимир Ленин, но химическое соединение трансформирует кварк.</div>-->
-
-<!--          <div class="wdg-comment__bottom">-->
-<!--            <a class="wdg-link" href="">Ответить</a>-->
-
-<!--            <div class="wdg-rate">-->
-<!--              <div class="wdg-rate__like"></div>-->
-
-<!--              <div class="wdg-rate__dislike"></div>-->
-<!--            </div>-->
-<!--          </div>-->
-
-<!--          <Message />-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </div>-->
-    <!-- end wdg-comment -->
-
   </div>
 </template>
 
 <script>
 import TimeAgo from 'vue2-timeago';
+import Cookies from "js-cookie";
 import Message from "@/components/Message";
 
 export default {
@@ -113,12 +84,22 @@ export default {
   },
   methods: {
     like() {
+      if (!this.$store.state.userData) {
+        this.$emit("popupType", "share");
+        return false;
+      }
+
       this.$store.dispatch("LIKE_DISLIKE", {
         type: "like",
         id: this.id
       });
     },
     dislike() {
+      if (!this.$store.state.userData) {
+        this.$emit("popupType", "share");
+        return false;
+      }
+
       this.$store.dispatch("LIKE_DISLIKE", {
         type: "dislike",
         id: this.id

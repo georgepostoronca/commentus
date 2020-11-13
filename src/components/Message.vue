@@ -28,10 +28,18 @@
           <div class="wdg-text">Прикреплено {{ files.length }} файла:</div>
 
           <div class="wdg-file__list">
-            <div v-for="(item, index) in files" :key="index" class="wdg-file__item js-upload-item">
+            <div
+              v-for="(item, index) in files"
+              :key="index"
+              class="wdg-file__item js-upload-item"
+            >
               <div v-html="item.input"></div>
               <div class="wdg-t">{{ item.name }}</div>
-              <div class="wdg-r" :data-index="index" @click="removeThisFile"></div>
+              <div
+                class="wdg-r"
+                :data-index="index"
+                @click="removeThisFile"
+              ></div>
             </div>
           </div>
         </div>
@@ -39,7 +47,13 @@
 
       <div class="wdg-add-comment__r">
         <div class="wdg-add-file">
-          <input type="file" name="" id="input-file-01" @change="addFile">
+          <input
+            type="file"
+            name=""
+            id="input-file-01"
+            multiple
+            @change="addFile"
+          />
           <label for="input-file-01">
             <span class="wdg-icon-clip"></span>
           </label>
@@ -74,7 +88,8 @@
 export default {
   name: "Message",
   props: {
-    textarea: String
+    textarea: String,
+    type: String
   },
   data() {
     return {
@@ -109,11 +124,22 @@ export default {
       ],
       curPosition: 0,
       files: [],
+      fileMaxSize: 50000,
+      fileFormat: [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/svg+xml",
+        "image/gif"
+      ],
       messageFocused: false,
       messageText: ""
     };
   },
   computed: {
+    draft: e => {
+      return e.$store.state.draft;
+    },
     ifTextareaOpen: e => {
       let ifText = e.messageText;
       let ifFile = e.files.length;
@@ -143,45 +169,34 @@ export default {
       }
     },
     addFile(e) {
-      //TODO исправить загрузку файлов и если поллучится сделать мулти загрузку
       //TODO проверка файлов на размер имя и количество
-      //TODO рендерить дубликат <input>
       //TODO исправить проблему с добовлением файла в первы блок <Message> когда их больше 1
 
-      // доступные форматы
-      let format = [
-        "jpg",
-        "jpeg",
-        "png",
-        "webp",
-        "svg",
-        "gif",
-        "pdf",
-        "doc",
-        "docx",
-        "ppt",
-        "txt"
-      ];
-      // регулярка для получения имя и формат файла
-      let reg = /[\/\\]([^\\\/:*?\"<>|]+)$/im;
-      let file = reg.exec(e.target.value)[1].split(".");
-      // имя
-      let fileName = file[0];
-      // формат
-      let fileFormat = file[1];
+      let files = [].slice.call(e.target.files);
+      let error = false;
 
-      // если формат не совпадает с форматами из мссива то отменяем выполнение функций
-      if (!format.includes(fileFormat)) {
-        alert(String(format));
-        return 0;
+      if (files.length > 5) {
+        alert("Не больше 5 файлов");
+        return false;
+      }
+      
+      let arrFiles = files.filter(item => {
+        if (
+          this.fileFormat.includes(item.type) &&
+          item.size < this.fileMaxSize
+        ) {
+          return item;
+        } else {
+          error = true;
+          return false;
+        }
+      });
+
+      if (error) {
+        alert(String(this.fileFormat));
       }
 
-      // добовляем в массив выбраный файл
-      this.files.push({
-        name: fileName + "." + fileFormat || e.target.value,
-        format: fileFormat,
-        file: e.target.files[0]
-      });
+      this.files = arrFiles;
     },
     removeThisFile(e) {
       let el = e.target;
@@ -190,23 +205,39 @@ export default {
       // удаляем из масива выбраный файл
       this.files[index] = undefined;
       this.files = this.files.filter(item => {
-        console.log(item);
         return item ? item : 0;
       });
     },
     getFormData() {
-      let form = new FormData;
+      let form = new FormData();
+
+      if (!this.messageText) {
+        alert("Введите текст сообщения");
+        return false;
+      }
 
       form.append("text", this.messageText);
+      form.append("comment_id", "20");
+      form.append("reply_to", "0");
+
       this.files.map(item => {
-        form.append('file[]', item.file, item.name);
+        console.log(item.name);
+        form.append("file[]", item, item.name);
       });
 
-      console.log(form.getAll("file[]"));
-      console.log("Submit", form);
+      this.$store.dispatch("SEND_COMMENT", form);
+
+    }
+  },
+  watch: {
+    draft(newCount) {
+      if (newCount && this.type === "root") {
+        this.$refs.messageTextarea.value = newCount;
+        this.messageText = newCount;
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
