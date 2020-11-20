@@ -7,7 +7,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    apiUrl: "https://commentus.net/api/",
+    apiUrl: "https://commentus.net/api/api.php",
     apiAuth: "https://commentus.net/authorize",
     siteId: commentus_widget[0].site_id,
     lang: commentus_widget[0].lang,
@@ -19,12 +19,12 @@ export default new Vuex.Store({
     pageNotFinish: true,
     draft: false
   },
-  getters: {},
+  getters: {
+    COMMENTS_LENGTH: state => {
+      return state.comments.length;
+    }
+  },
   mutations: {
-    LOGOUT_USER: state => {
-      state.hash = false;
-      state.userData = {};
-    },
     GET_COMMENT: (state, payload) => {
       if (payload.result === "false") {
         alert(payload.data);
@@ -73,15 +73,34 @@ export default new Vuex.Store({
           console.log(error);
         });
     },
-    LIKE_DISLIKE({ state, dispatch }, payload) {
-      payload.append("method", "like");
-      payload.append("comment_id", payload.id);
-      payload.append("commentus_user_id", state.userData.data.user_id);
-      payload.append("commentus_user_hash", state.hash);
+    LOGOUT_USER({state, dispatch}) {
+      let formData = new FormData();
+      formData.append("method", "logout_user");
 
       dispatch("AJAX", {
         url: state.apiUrl,
-        data: payload,
+        data: formData,
+        callback() {
+          state.hash = false;
+          state.userData = {};
+          Cookies.remove('commentus_user_hash');
+        }
+      });
+    },
+    LIKE_DISLIKE({ state, dispatch }, payload) {
+      let formData = new FormData();
+      if(payload.type === "dislike") {
+        formData.append("method", "dislike");
+      } else {
+        formData.append("method", "like");
+      }
+      formData.append("comment_id", payload.id);
+      formData.append("commentus_user_id", state.userData.data.user_id);
+      formData.append("commentus_user_hash", state.hash);
+
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
         callback(result) {
           console.log(result);
         }
@@ -117,7 +136,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: payload,
         callback({ data }) {
-          console.log(data);
+          dispatch("GET_COMMENT");
         }
       });
     },
@@ -131,6 +150,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: data,
         callback(response) {
+          console.log(response.data);
           commit("GET_COMMENT", response);
         }
       });
@@ -178,12 +198,10 @@ export default new Vuex.Store({
         data: formData,
         callback({ data }) {
           console.log(data);
-          
+
           if (!Cookies.get(hash)) {
             if (data.result === "false") {
-              Cookies.set(hash, data[hash], {
-                expires: 7
-              });
+              Cookies.set(hash, data[hash]);
               dispatch("GET_COOKIE");
             }
           }

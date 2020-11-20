@@ -41,7 +41,7 @@
         </div>
 
         <!-- для раскрытого состояния класс wdg-open -->
-        <Message v-if="ifMessage" :textarea="reply" />
+        <Message v-if="ifMessage" :textarea="reply" :replyto="id"/>
       </div>
     </div>
 
@@ -63,7 +63,8 @@ export default {
   props: {
     data: Object,
     reply: String,
-    index: [Number, String]
+    index: [Number, String],
+    replyto: Number
   },
   computed: {
     locale: e => {
@@ -72,7 +73,7 @@ export default {
   },
   data() {
     return {
-      id: this.data.id,
+      id: Number(this.data.id),
       name: this.data.user_data.name || "",
       avatar: this.data.user_data.avatar || "",
       date: this.data.date || "",

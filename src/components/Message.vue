@@ -1,6 +1,6 @@
 <template>
   <!-- для раскрытого состояния класс wdg-open -->
-  <div class="wdg-add-comment" ref="messageWrap" :class="{'wdg-open': ifTextareaOpen}">
+  <form class="wdg-add-comment" ref="messageWrap" :class="{'wdg-open': ifTextareaOpen}">
     <textarea class="wdg-add-comment__field"
       @input="cursorPosition"
       @change="cursorPosition"
@@ -79,7 +79,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </template>
 
 <script>
@@ -89,7 +89,8 @@ export default {
   name: "Message",
   props: {
     textarea: String,
-    type: String
+    type: String,
+    replyto: Number
   },
   data() {
     return {
@@ -145,6 +146,9 @@ export default {
       let ifFile = e.files.length;
 
       return !!(ifText || ifFile || e.messageFocused);
+    },
+    siteId: e => {
+      return e.$store.state.siteId;
     }
   },
   methods: {
@@ -208,6 +212,12 @@ export default {
         return item ? item : 0;
       });
     },
+    resetTextarea() {
+      this.$refs.messageWrap.reset();
+      this.messageText = "";
+      this.files = [];
+      this.messageFocused = false;
+    },
     getFormData() {
       let form = new FormData();
 
@@ -216,9 +226,13 @@ export default {
         return false;
       }
 
+      console.log("Msg: ", this.messageText);
+      console.log("id: ", this.siteId);
+      console.log("replyto: ", this.replyto);
+
       form.append("text", this.messageText);
-      form.append("comment_id", "20");
-      form.append("reply_to", "0");
+      form.append("comment_id", this.siteId);
+      form.append("reply_to", this.replyto);
 
       this.files.map(item => {
         console.log(item.name);
@@ -226,7 +240,7 @@ export default {
       });
 
       this.$store.dispatch("SEND_COMMENT", form);
-
+      this.resetTextarea();
     }
   },
   watch: {

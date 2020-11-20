@@ -13,6 +13,8 @@
     "js-cookie": "^2.2.1",
     "node-sass": "^5.0.0",
     "sass-loader": "^10.0.5",
+    "url-polyfill": "^1.1.12",
+    "url-search-params-polyfill": "^8.1.0",
     "vue": "^2.6.11",
     "vue-click-outside": "^1.1.0",
     "vue2-timeago": "^1.2.9",

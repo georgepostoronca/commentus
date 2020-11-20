@@ -9,7 +9,9 @@
     >
       <div class="wdg__wrap">
         <div class="wdg-top">
-          <div class="wdg-title">{{ commentsArray.length }} комментариев page: {{ commentPage }}</div>
+          <div class="wdg-title">
+            {{ commentLength }} комментариев page: {{ commentPage }}
+          </div>
 
           <div class="wdg-main-sort">
             <div
@@ -75,8 +77,7 @@
               :data="item.comment"
               :index="index"
               reply="Написать ответ..."
-              replyto="item.reply_to"
-              id="item.id"
+              :replyto="Number(0)"
               @popupType="popupClose($event)"
               @shareData="popupShare($event)"
             >
@@ -86,8 +87,7 @@
                 :key="Number(val.id)"
                 :data="item.subcomment[index]"
                 reply="Написать ответ..."
-                replyto="val.reply_to"
-                id="val.id"
+                :replyto="Number(item.comment.id)"
                 @popupType="popupClose($event)"
                 @shareData="popupShare($event)"
               >
@@ -155,6 +155,9 @@ export default {
     };
   },
   computed: {
+    commentLength: e => {
+      return e.$store.state.comments.length;
+    },
     theme: e => {
       if (e.$store.state.theme === "dark") {
         return "wdg--night";
@@ -211,7 +214,7 @@ export default {
       this.$store.dispatch("GET_MORE_COMMENT");
     },
     logoutUser() {
-      this.$store.commit("LOGOUT_USER");
+      this.$store.dispatch("LOGOUT_USER");
     }
   },
   created() {
