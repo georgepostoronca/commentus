@@ -10,7 +10,7 @@ export default new Vuex.Store({
     apiUrl: "https://commentus.net/api/api.php",
     apiAuth: "https://commentus.net/authorize",
     siteId: commentus_widget[0].site_id,
-    lang: commentus_widget[0].lang,
+    lang: ["ru", "en"].includes(commentus_widget[0].lang) ? "en" : commentus_widget[0].lang,
     theme: commentus_widget[0].theme,
     comments: [],
     hash: false,
