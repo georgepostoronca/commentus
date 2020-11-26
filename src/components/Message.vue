@@ -11,7 +11,7 @@
       @click="cursorPosition"
       v-model="messageText"
       ref="messageTextarea"
-      :placeholder="textarea || 'Написать комментарий...'"
+      :placeholder="textarea"
     ></textarea>
 
     <div class="wdg-add-comment__bottom">
@@ -21,11 +21,11 @@
           type="button"
           @click="getFormData"
         >
-          Отправить
+          {{ 'SEND' | translate }}
         </button>
 
         <div class="wdg-file" v-if="files.length">
-          <div class="wdg-text">Прикреплено {{ files.length }} файла:</div>
+          <div class="wdg-text">{{ lengthFile }}:</div>
 
           <div class="wdg-file__list">
             <div
@@ -83,7 +83,7 @@
 </template>
 
 <script>
-// TODO собрать данные для отправки
+import translate from "@/lang";
 
 export default {
   name: "Message",
@@ -125,7 +125,7 @@ export default {
       ],
       curPosition: 0,
       files: [],
-      fileMaxSize: 50000,
+      fileMaxSize: 5000000,
       fileFormat: [
         "image/jpeg",
         "image/png",
@@ -138,6 +138,25 @@ export default {
     };
   },
   computed: {
+    lengthFile: e => {
+      let len = e.files.length;
+      let lang = e.$store.state.lang;
+      let prep = "";
+
+      if (len > 1) {
+        if (lang === "ru") {
+          prep = "а";
+        } else {
+          prep = "s";
+        }
+      }
+
+      if(len > 4 && lang === "ru") {
+        prep = "ов";
+      }
+
+      return `${translate['ATTACHED'][lang]} ${len} ${translate["FILE"][lang]}${prep}`;
+    },
     draft: e => {
       return e.$store.state.draft;
     },
@@ -179,11 +198,13 @@ export default {
       let files = [].slice.call(e.target.files);
       let error = false;
 
+      console.log(files)
+
       if (files.length > 5) {
         alert("Не больше 5 файлов");
         return false;
       }
-      
+
       let arrFiles = files.filter(item => {
         if (
           this.fileFormat.includes(item.type) &&
@@ -197,7 +218,7 @@ export default {
       });
 
       if (error) {
-        alert(String(this.fileFormat));
+        alert("jpeg, png, webp, svg, gif");
       }
 
       this.files = arrFiles;
@@ -239,8 +260,14 @@ export default {
         form.append("file[]", item, item.name);
       });
 
-      this.$store.dispatch("SEND_COMMENT", form);
-      this.resetTextarea();
+      let userData = this.$store.state.userData;
+      if (Object.keys(userData).length === 0 && userData.constructor === Object) {
+        this.$store.commit("TOGGLE_POPUP", "login");
+        console.log("Login");
+      } else {
+        this.$store.dispatch("SEND_COMMENT", form);
+        this.resetTextarea();
+      }
     }
   },
   watch: {

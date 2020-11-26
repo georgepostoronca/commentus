@@ -3,10 +3,7 @@
     <div class="wdg-popup__layout" @click="changeTypePopup('')"></div>
     <!--    Поделиться ссылкой-->
     <div v-if="popup === 'share'" class="wdg-popup__wrap">
-      <div class="wdg-popup__title">
-        Поделиться ссылкой<br />
-        на комментарий
-      </div>
+      <div class="wdg-popup__title">{{ 'SHARE_LINK' | translate }}</div>
 
       <div class="wdg-popup__content">
         <div class="wdg-copy-link" @click="copyClipboard($event)">
@@ -41,7 +38,7 @@
 
     <!--    Войти через почту-->
     <div v-if="popup === 'email'" class="wdg-popup__wrap">
-      <div class="wdg-popup__title">Войти через почту</div>
+      <div class="wdg-popup__title">{{ 'SIGN_EMAIL' | translate }}</div>
 
       <div class="wdg-popup__content">
         <div class="wdg-link-back">
@@ -51,7 +48,7 @@
             @click.prevent="changeTypePopup('login')"
           >
             <span class="wdg-i">←</span>
-            <div class="wdg-t">Войти через соц. сети</div>
+            <div class="wdg-t">{{ 'SIGN_SOCIAL' | translate }}</div>
           </a>
         </div>
 
@@ -62,31 +59,32 @@
           @submit.prevent="submitForm"
         >
           <div class="wdg-form__row">
-            <div class="wdg-text">Ваше имя:</div>
+            <div class="wdg-text">{{ 'INPUT_NAME' | translate }}:</div>
             <div class="wdg-field">
               <input type="text" name="name" class="wdg-inp" :class="{'error': !validName}" required v-model="name"/>
-              <span>Требуется указать имя</span>
+              <span>{{ 'NAME_REQUIRED' | translate }}</span>
             </div>
           </div>
 
           <div class="wdg-form__row">
-            <div class="wdg-text">E-Mail:</div>
+            <div class="wdg-text">{{ 'INPUT_EMAIL' | translate }}:</div>
             <div class="wdg-field">
               <input type="email" name="email" class="wdg-inp" :class="{'error': !validEmail}" required v-model="email"/>
-              <span>Требуется указать email</span>
+              <span>{{ 'EMAIL_REQUIRED' | translate }}</span>
             </div>
           </div>
 
           <div class="wdg-form__bottom">
             <div class="wdg-l">
-              <button class="wdg-btn-blue size-l">Войти</button>
+              <button class="wdg-btn-blue size-l">{{ 'SIGNIN' | translate }}</button>
             </div>
 
             <div class="wdg-r">
               <div class="wdg-auth-notify">
-                Авторизуясь, вы соглашаетесь с
-                <a href="">правилами использования</a> и даете согласие на
-                <a href="">обработку персональных данных</a>.
+                {{ 'POLICY_PART1' | translate }}
+                <a href="#">{{ 'POLICY_LINK1' | translate }}</a>
+                {{ 'POLICY_PART2' | translate }}
+                <a href="#">{{ 'POLICY_LINK2' | translate }}</a>
               </div>
             </div>
           </div>
@@ -98,10 +96,7 @@
 
     <!--    авторизоваться-->
     <div v-if="popup === 'login'" class="wdg-popup__wrap">
-      <div class="wdg-popup__title">
-        Необходимо<br />
-        авторизоваться:
-      </div>
+      <div class="wdg-popup__title">{{ 'LOGIN_REQUIRED' | translate }}</div>
 
       <div class="wdg-popup__content">
         <div class="wdg-soc-links">
@@ -146,14 +141,15 @@
 
           <a href="" class="wdg-item" @click.prevent="changeTypePopup('email')">
             <span class="wdg-icon-mail"></span>
-            <span class="wdg-t">Через почту</span>
+            <span class="wdg-t">{{ 'WITH_EMAIL' | translate }}</span>
           </a>
         </div>
 
         <div class="wdg-auth-notify">
-          Авторизуясь, вы соглашаетесь с
-          <a href="">правилами использования</a> и даете согласие на
-          <a href="">обработку персональных данных</a>.
+          {{ 'POLICY_PART1' | translate }}
+          <a href="#">{{ 'POLICY_LINK1' | translate }}</a>
+          {{ 'POLICY_PART2' | translate }}
+          <a href="#">{{ 'POLICY_LINK2' | translate }}</a>
         </div>
       </div>
 
@@ -163,6 +159,8 @@
 </template>
 
 <script>
+import translate from "@/lang";
+
 export default {
   name: "Popup",
   data() {
@@ -173,6 +171,9 @@ export default {
     };
   },
   computed: {
+    popup() {
+      return this.$store.state.openPopup;
+    },
     validName() {
       return !(this.name.length <= 2);
     },
@@ -182,12 +183,11 @@ export default {
     }
   },
   props: {
-    popup: String,
     shareLink: String
   },
   methods: {
     changeTypePopup(type) {
-      this.$emit("popupType", type);
+      this.$store.commit("TOGGLE_POPUP", type);
     },
     submitForm({ target: form }) {
       if (this.validName && this.validEmail) {
@@ -204,7 +204,7 @@ export default {
       document.execCommand("copy");
 
       let innerText = text.innerText;
-      text.innerText = "Текст скопирован в буфер обмена";
+      text.innerText = translate['COPY_CLIPBOARD'][this.$store.state.lang];
       target.parentElement.style.pointerEvents = "none";
       setTimeout(() => {
         text.innerText = innerText;

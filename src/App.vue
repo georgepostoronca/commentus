@@ -44,15 +44,16 @@
           </div>
         </div>
 
-        <button @click="popup = 'share'">Popup Share</button>
-        <button @click="popup = 'email'">Popup Email</button>
-        <button @click="popup = 'login'">Popup Login</button>
+        <button @click="togglePopup('share')">Popup Share</button>
+        <button @click="togglePopup('email')">Popup Email</button>
+        <button @click="togglePopup('login')">Popup Login</button>
+        <span>{{ $store.state.openPopup }}</span>
 
 <!--        <span>{{ $store.state.hash }}</span>-->
 <!--        <br />-->
 <!--        <span>{{ $store.state.userData }}</span>-->
 
-        <Message type="root"/>
+        <Message type="root" :textarea="'PLACEHOLDER_COMMENT' | translate"/>
 
         <div class="wdg-user" v-if="userData">
           <span class="wdg-user__ava">
@@ -64,9 +65,8 @@
 
         <div class="wdg-notify">
           <span class="wdg-notify__icon wdg-icon-info"></span>
-          Оставляя комментарии на этом сайте, можно получать монеты COMMENTUS,
-          котые затем можно тратить на привычные вам вещи.
-          <a href="">Подробнее</a>
+          {{ "INFO_TEXT" | translate }}
+          <a href="">{{ 'MORE_DETAILS' | translate }}</a>
         </div>
 
         <div class="wdg-comments__wrap" v-if="commentsArray.length">
@@ -76,9 +76,8 @@
               :key="index"
               :data="item.comment"
               :index="index"
-              reply="Написать ответ..."
+              :reply="'PLACEHOLDER_REPLY' | translate"
               :replyto="Number(0)"
-              @popupType="popupClose($event)"
               @shareData="popupShare($event)"
             >
               <Comment
@@ -86,11 +85,19 @@
                 v-for="(val, index) in item.subcomment"
                 :key="Number(val.id)"
                 :data="item.subcomment[index]"
-                reply="Написать ответ..."
+                :reply="'PLACEHOLDER_REPLY' | translate"
                 :replyto="Number(item.comment.id)"
-                @popupType="popupClose($event)"
                 @shareData="popupShare($event)"
               >
+                <Comment
+                    v-if="item.subcomment.nested"
+                    v-for="(val, index) in item.subcomment.nested"
+                    :key="Number(val.id)"
+                    :data="item.subcomment.nested[index]"
+                    :reply="'PLACEHOLDER_REPLY' | translate"
+                    :replyto="Number(item.subcomment.nested.id)"
+                    @shareData="popupShare($event)"
+                ></Comment>
               </Comment>
             </Comment>
           </div>
@@ -100,16 +107,12 @@
             v-if="pageNotFinish"
             @click="moreComment"
           >
-            Показать ещё
+            {{ 'SHOW_MORE' | translate }}
           </button>
         </div>
       </div>
 
-      <Popup
-        v-bind:popup="popup"
-        :shareLink="popupShareLink"
-        @popupType="popupClose($event)"
-      />
+      <Popup v-bind:popup="popup" :shareLink="popupShareLink" />
     </div>
     <!-- end wdg -->
   </div>
@@ -121,6 +124,7 @@ import Comment from "@/components/Comment";
 import Popup from "@/components/Popup";
 
 import ClickOutside from "vue-click-outside";
+import translate from "@/lang";
 
 export default {
   name: "App",
@@ -132,29 +136,31 @@ export default {
   data() {
     return {
       root: this.$refs.wdgRoot,
-      popup: "",
       sortOpen: false,
       popupShareLink: "",
       sortSelected: {
-        name: "По популярности"
+        name: translate["SORT_POPULARITY"][this.$store.state.lang]
       },
       sortItem: [
         {
-          name: "По популярности",
+          name: translate["SORT_POPULARITY"][this.$store.state.lang],
           type: "popularity"
         },
         {
-          name: "Новые",
+          name: translate["SORT_NEW"][this.$store.state.lang],
           type: "newest"
         },
         {
-          name: "Старые",
+          name: translate["SORT_OLD"][this.$store.state.lang],
           type: "oldest"
         }
       ]
     };
   },
   computed: {
+    popup() {
+      return this.$store.state.openPopup;
+    },
     commentLength: e => {
       return e.$store.state.comments.length;
     },
@@ -172,37 +178,70 @@ export default {
       return e.$store.state.pageNotFinish;
     },
     commentsArray: e => {
-      let data = e.$store.state.comments || [];
-      // console.log(data);
-      let cmt = [];
+      // let data = ;
+      // // console.log(data);
+      // let cmt = [];
+      //
+      // data.forEach(item => {e.$store.state.comments || []
+      //   let id = item.id;
+      //   let replyId = item.reply_to;
+      //
+      //   let subcomment = data.filter(sub => {
+      //     return Number(sub.reply_to) === Number(id) ? sub : false;
+      //   });
+      //
+      //   if (!Number(replyId)) {
+      //     cmt.push({
+      //       comment: item,
+      //       subcomment
+      //     });
+      //   }
+      // });
+      //
+      // // console.log("CMT", cmt);
+      //
+      // return cmt.length ? cmt : [];
 
-      data.forEach(item => {
+
+      // new Algorithm
+      let com = e.$store.state.comments || [];
+      let newArr = [];
+
+      com.forEach((item, index) => {
         let id = item.id;
-        let replyId = item.reply_to;
+        let second = nested(id, com);
 
-        let subcomment = data.filter(sub => {
-          return Number(sub.reply_to) === Number(id) ? sub : false;
+        second.forEach(item => {
+          let findThird = nested(item.id, com);
+          item.nested = findThird;
         });
 
-        if (!Number(replyId)) {
-          cmt.push({
-            comment: item,
-            subcomment
-          });
-        }
+        newArr.push({
+          comment: item,
+          subcomment: second
+        });
       });
 
-      // console.log("CMT", cmt);
+      function nested(id, arr) {
+        let nested = arr.filter((item, index) => {
+          if (Number(id) === Number(item.reply_to)) {
+            delete com[index];
+            return item;
+          }
+        });
+        return nested;
+      }
 
-      return cmt.length ? cmt : [];
+      return newArr.length ? newArr : [];
+
     },
     userData: e => {
       return e.$store.state.userData.data;
     }
   },
   methods: {
-    popupClose(e) {
-      this.popup = e;
+    togglePopup(e) {
+      this.$store.commit("TOGGLE_POPUP", e);
     },
     popupShare(e) {
       this.popupShareLink = e;
@@ -219,8 +258,8 @@ export default {
   },
   created() {
     this.$store.dispatch("GET_COMMENT");
-    this.$store.dispatch("GET_COOKIE");
-    this.$store.dispatch("GET_DRAFT");
+    // this.$store.dispatch("GET_COOKIE");
+    // this.$store.dispatch("GET_DRAFT");
   },
   directives: {
     ClickOutside

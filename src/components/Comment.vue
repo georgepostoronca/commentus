@@ -15,27 +15,27 @@
           </div>
         </div>
 
-        ID: {{ id }}
-        <br>
-        REPLY: {{ data.reply_to }}
+<!--        ID: {{ id }}-->
+<!--        <br>-->
+<!--        REPLY: {{ data.reply_to }}-->
 
         <div class="wdg-comment__text">{{ text }}</div>
 
         <div class="wdg-comment__bottom">
-          <button class="wdg-link" @click="ifMessage = !ifMessage">Ответить</button>
+          <button class="wdg-link" @click="ifMessage = !ifMessage">{{ "REPLY" | translate }}</button>
 
           <!--Rate-->
           <div class="wdg-rate">
             <div class="wdg-rate__like" @click="like"></div>
 
-            <div class="wdg-rate__num" :class="[likes < 0 ? '--wdg-red' : '']">{{ likes }}</div>
+            <div class="wdg-rate__num" v-if="likes != 0" :class="[likes < 0 ? '--wdg-red' : '']">{{ likes }}</div>
 
             <div class="wdg-rate__dislike" @click="dislike"></div>
           </div>
 
           <!--Share-->
           <button class="wdg-comment__share" @click="openShare">
-            <span class="wdg-t">Поделиться</span>
+            <span class="wdg-t">{{ 'SHARE' | translate }}</span>
             <span class="wdg-i"></span>
           </button>
         </div>
@@ -85,8 +85,10 @@ export default {
   },
   methods: {
     like() {
-      if (!this.$store.state.userData) {
-        this.$emit("popupType", "share");
+      let userData = this.$store.state.userData;
+
+      if (Object.keys(userData).length === 0 && userData.constructor === Object) {
+        this.$store.commit("TOGGLE_POPUP", "login");
         return false;
       }
 
@@ -94,10 +96,17 @@ export default {
         type: "like",
         id: this.id
       });
+
+      this.likes = this.likes++;
     },
     dislike() {
-      if (!this.$store.state.userData) {
-        this.$emit("popupType", "share");
+      let userData = this.$store.state.userData;
+
+      if (
+        Object.keys(userData).length === 0 &&
+        userData.constructor === Object
+      ) {
+        this.$store.commit("TOGGLE_POPUP", "login");
         return false;
       }
 
@@ -105,9 +114,11 @@ export default {
         type: "dislike",
         id: this.id
       });
+
+      this.likes = this.likes--;
     },
     openShare() {
-      this.$emit("popupType", "share");
+      this.$store.commit("TOGGLE_POPUP", "share");
       this.$emit(
         "shareData",
         location.href + "#commentus_widget_form" + this.id

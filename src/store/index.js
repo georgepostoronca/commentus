@@ -10,14 +10,15 @@ export default new Vuex.Store({
     apiUrl: "https://commentus.net/api/api.php",
     apiAuth: "https://commentus.net/authorize",
     siteId: commentus_widget[0].site_id,
-    lang: ["ru", "en"].includes(commentus_widget[0].lang) ? "en" : commentus_widget[0].lang,
+    lang: ["ru", "en"].includes(commentus_widget[0].lang) ? commentus_widget[0].lang : "en",
     theme: commentus_widget[0].theme,
     comments: [],
     hash: false,
     userData: {},
     page: 1,
     pageNotFinish: true,
-    draft: false
+    draft: false,
+    openPopup: ""
   },
   getters: {
     COMMENTS_LENGTH: state => {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    TOGGLE_POPUP: (state, payload) => {
+      state.openPopup = payload;
+    },
     GET_COMMENT: (state, payload) => {
       if (payload.result === "false") {
         alert(payload.data);
@@ -124,6 +128,23 @@ export default new Vuex.Store({
         }
       });
     },
+    SAVE_DRAFT({ state, dispatch }, payload) {
+      let formData = new FormData();
+      formData.append("method", "save_draft");
+      formData.append("commentus_user_hash", state.hash);
+      formData.append("site_id", state.siteId);
+      formData.append("url", location.href);
+      formData.append("text", payload.text);
+      formData.append("reply_to", payload.replyto);
+
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
+        callback({ data }) {
+          console.log(data);
+        }
+      });
+    },
     SEND_COMMENT({ state, commit, dispatch }, payload) {
       let method = "post_comment";
 
@@ -211,6 +232,26 @@ export default new Vuex.Store({
           }
         }
       });
+    },
+    GET_USER_HASH({ state, dispatch, commit }, payload) {
+      let formData = new FormData();
+      formData.append("method", "get_user_hash");
+      formData.append("code", payload.code);
+      formData.append("user_id", payload.id);
+
+      dispatch("AJAX", {
+        url: state.apiUrl,
+        data: formData,
+        callback({ data }) {
+          if (data.result === "true") {
+            commit("SET_USER_DATA", data);
+          }
+        }
+      });
+
+      return {
+        result: true
+      };
     }
   },
   modules: {}
