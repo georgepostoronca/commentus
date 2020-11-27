@@ -40,13 +40,14 @@ if (urlparam.has(userCode)) {
   // Cookies.set(userHash, urlparam.get(userHash));
   // console.log("URL: ", decodeURIComponent(urlparam.toString()));
 
-  // urlparam.delete(userCode);
-  // urlparam.delete(userId);
-  // history.pushState(
-  //   {},
-  //   "",
-  //   location.origin + decodeURIComponent(urlparam.toString())
-  // );
+  urlparam.delete(userCode);
+  if (userId) urlparam.delete(userId);
+
+  history.pushState(
+    {},
+    "",
+    location.origin + decodeURIComponent(urlparam.toString())
+  );
 } else {
   store.dispatch("GET_COOKIE");
   store.dispatch("GET_DRAFT");

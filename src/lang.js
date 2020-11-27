@@ -110,6 +110,10 @@ const translate = {
   FILE: {
     ru: "файл",
     en: "file"
+  },
+  TEXT_COMMENT: {
+    ru: "комментари",
+    en: "comment"
   }
 };
 

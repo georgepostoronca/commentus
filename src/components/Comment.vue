@@ -15,14 +15,14 @@
           </div>
         </div>
 
-<!--        ID: {{ id }}-->
-<!--        <br>-->
-<!--        REPLY: {{ data.reply_to }}-->
+        ID: {{ id }}
+        <br>
+        REPLY: {{ data.reply_to }}
 
         <div class="wdg-comment__text">{{ text }}</div>
 
         <div class="wdg-comment__bottom">
-          <button class="wdg-link" @click="ifMessage = !ifMessage">{{ "REPLY" | translate }}</button>
+          <button class="wdg-link" v-if="ifreply" @click="ifMessage = !ifMessage">{{ "REPLY" | translate }}</button>
 
           <!--Rate-->
           <div class="wdg-rate">
@@ -64,7 +64,11 @@ export default {
     data: Object,
     reply: String,
     index: [Number, String],
-    replyto: Number
+    replyto: Number,
+    ifreply: {
+      default: true,
+      type: Boolean
+    }
   },
   computed: {
     locale: e => {

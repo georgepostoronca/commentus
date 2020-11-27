@@ -10,7 +10,9 @@ export default new Vuex.Store({
     apiUrl: "https://commentus.net/api/api.php",
     apiAuth: "https://commentus.net/authorize",
     siteId: commentus_widget[0].site_id,
-    lang: ["ru", "en"].includes(commentus_widget[0].lang) ? commentus_widget[0].lang : "en",
+    lang: ["ru", "en"].includes(commentus_widget[0].lang)
+      ? commentus_widget[0].lang
+      : "en",
     theme: commentus_widget[0].theme,
     comments: [],
     hash: false,
@@ -23,6 +25,34 @@ export default new Vuex.Store({
   getters: {
     COMMENTS_LENGTH: state => {
       return state.comments.length;
+    },
+    SORT_COMMENT: state => {
+      let com = state.comments || [];
+
+      com.forEach(item => {
+        let id = item.id;
+        let second = nested(id, com);
+
+        second.forEach(item => {
+          item.nested = nested(item.id, com);
+        });
+
+        item.subcomment = second;
+      });
+
+      function nested(id, arr) {
+        return arr.filter((item, index) => {
+          if (Number(id) === Number(item.reply_to)) {
+            delete com[index];
+            return item;
+          }
+        });
+      }
+
+      let newArr = com.filter(item => item);
+
+      console.log("newArr: ", newArr);
+      return newArr.length ? newArr : [];
     }
   },
   mutations: {
@@ -33,6 +63,8 @@ export default new Vuex.Store({
       if (payload.result === "false") {
         alert(payload.data);
       } else {
+        state.comments = [];
+        console.log("GET_COMMENT: ", payload);
         state.comments = [...payload.data.data];
       }
     },
@@ -77,7 +109,7 @@ export default new Vuex.Store({
           console.log(error);
         });
     },
-    LOGOUT_USER({state, dispatch}) {
+    LOGOUT_USER({ state, dispatch }) {
       let formData = new FormData();
       formData.append("method", "logout_user");
 
@@ -87,13 +119,13 @@ export default new Vuex.Store({
         callback() {
           state.hash = false;
           state.userData = {};
-          Cookies.remove('commentus_user_hash');
+          Cookies.remove("commentus_user_hash");
         }
       });
     },
     LIKE_DISLIKE({ state, dispatch }, payload) {
       let formData = new FormData();
-      if(payload.type === "dislike") {
+      if (payload.type === "dislike") {
         formData.append("method", "dislike");
       } else {
         formData.append("method", "like");
@@ -153,10 +185,25 @@ export default new Vuex.Store({
       payload.append("url", location.href);
       payload.append("site_id", state.siteId);
 
+      // let date = new Date();
+      // let year = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      // let time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+      //
+      // let newmsg = {
+      //   id: "62",
+      //   date: year + " " + time,
+      //   text: payload.get("text"),
+      //   reply_to: payload.get("reply_to"),
+      //   likes: {
+      //     upvote: "0"
+      //   },
+      //   user_data: state.userData
+      // };
+
       dispatch("AJAX", {
         url: state.apiUrl,
         data: payload,
-        callback({ data }) {
+        callback() {
           dispatch("GET_COMMENT");
         }
       });
@@ -244,6 +291,8 @@ export default new Vuex.Store({
         data: formData,
         callback({ data }) {
           if (data.result === "true") {
+            Cookies.remove("commentus_user_hash");
+            Cookies.set("commentus_user_hash", data.commentus_user_hash);
             commit("SET_USER_DATA", data);
           }
         }

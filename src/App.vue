@@ -53,7 +53,11 @@
 <!--        <br />-->
 <!--        <span>{{ $store.state.userData }}</span>-->
 
-        <Message type="root" :textarea="'PLACEHOLDER_COMMENT' | translate"/>
+        <Message
+          type="root"
+          :textarea="'PLACEHOLDER_COMMENT' | translate"
+          :replyto="0"
+        />
 
         <div class="wdg-user" v-if="userData">
           <span class="wdg-user__ava">
@@ -74,29 +78,30 @@
             <Comment
               v-for="(item, index) in commentsArray"
               :key="index"
-              :data="item.comment"
+              :data="item"
               :index="index"
               :reply="'PLACEHOLDER_REPLY' | translate"
               :replyto="Number(0)"
               @shareData="popupShare($event)"
             >
               <Comment
-                v-if="item.subcomment"
+                v-if="item.subcomment.length"
                 v-for="(val, index) in item.subcomment"
                 :key="Number(val.id)"
                 :data="item.subcomment[index]"
                 :reply="'PLACEHOLDER_REPLY' | translate"
-                :replyto="Number(item.comment.id)"
+                :replyto="Number(item.id)"
                 @shareData="popupShare($event)"
               >
                 <Comment
-                    v-if="item.subcomment.nested"
-                    v-for="(val, index) in item.subcomment.nested"
-                    :key="Number(val.id)"
-                    :data="item.subcomment.nested[index]"
-                    :reply="'PLACEHOLDER_REPLY' | translate"
-                    :replyto="Number(item.subcomment.nested.id)"
-                    @shareData="popupShare($event)"
+                  v-if="val.subcomment.length"
+                  v-for="(val2, index2) in val.subcomment"
+                  :key="Number(val2.id)"
+                  :data="val.subcomment[index2]"
+                  :reply="'PLACEHOLDER_REPLY' | translate"
+                  :replyto="Number(val.subcomment.id)"
+                  :ifreply="false"
+                  @shareData="popupShare($event)"
                 ></Comment>
               </Comment>
             </Comment>
@@ -178,62 +183,8 @@ export default {
       return e.$store.state.pageNotFinish;
     },
     commentsArray: e => {
-      // let data = ;
-      // // console.log(data);
-      // let cmt = [];
-      //
-      // data.forEach(item => {e.$store.state.comments || []
-      //   let id = item.id;
-      //   let replyId = item.reply_to;
-      //
-      //   let subcomment = data.filter(sub => {
-      //     return Number(sub.reply_to) === Number(id) ? sub : false;
-      //   });
-      //
-      //   if (!Number(replyId)) {
-      //     cmt.push({
-      //       comment: item,
-      //       subcomment
-      //     });
-      //   }
-      // });
-      //
-      // // console.log("CMT", cmt);
-      //
-      // return cmt.length ? cmt : [];
-
-
       // new Algorithm
-      let com = e.$store.state.comments || [];
-      let newArr = [];
-
-      com.forEach((item, index) => {
-        let id = item.id;
-        let second = nested(id, com);
-
-        second.forEach(item => {
-          let findThird = nested(item.id, com);
-          item.nested = findThird;
-        });
-
-        newArr.push({
-          comment: item,
-          subcomment: second
-        });
-      });
-
-      function nested(id, arr) {
-        let nested = arr.filter((item, index) => {
-          if (Number(id) === Number(item.reply_to)) {
-            delete com[index];
-            return item;
-          }
-        });
-        return nested;
-      }
-
-      return newArr.length ? newArr : [];
-
+      return e.$store.getters("SORT_COMMENT");
     },
     userData: e => {
       return e.$store.state.userData.data;

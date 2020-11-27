@@ -256,7 +256,7 @@ export default {
       form.append("reply_to", this.replyto);
 
       this.files.map(item => {
-        console.log(item.name);
+        // console.log(item.name);
         form.append("file[]", item, item.name);
       });
 
