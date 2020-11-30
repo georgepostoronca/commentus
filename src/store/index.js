@@ -25,34 +25,6 @@ export default new Vuex.Store({
   getters: {
     COMMENTS_LENGTH: state => {
       return state.comments.length;
-    },
-    SORT_COMMENT: state => {
-      let com = state.comments || [];
-
-      com.forEach(item => {
-        let id = item.id;
-        let second = nested(id, com);
-
-        second.forEach(item => {
-          item.nested = nested(item.id, com);
-        });
-
-        item.subcomment = second;
-      });
-
-      function nested(id, arr) {
-        return arr.filter((item, index) => {
-          if (Number(id) === Number(item.reply_to)) {
-            delete com[index];
-            return item;
-          }
-        });
-      }
-
-      let newArr = com.filter(item => item);
-
-      console.log("newArr: ", newArr);
-      return newArr.length ? newArr : [];
     }
   },
   mutations: {
@@ -64,8 +36,10 @@ export default new Vuex.Store({
         alert(payload.data);
       } else {
         state.comments = [];
-        console.log("GET_COMMENT: ", payload);
-        state.comments = [...payload.data.data];
+        console.log("result comment: ", payload.data.data);
+        console.log("Comment: ------ ", state.comments);
+
+        state.comments = payload.data.data;
       }
     },
     GET_MORE_COMMENT: (state, payload) => {
@@ -208,11 +182,15 @@ export default new Vuex.Store({
         }
       });
     },
-    GET_COMMENT({ state, commit, dispatch }) {
+    GET_COMMENT({ state, commit, dispatch }, paylooad) {
       let data = new FormData();
       data.append("method", "get_comments");
       data.append("site_id", state.siteId);
       data.append("url", location.origin);
+
+      if (paylooad?.sort) {
+        data.append("sort_by", paylooad.sort);
+      }
 
       dispatch("AJAX", {
         url: state.apiUrl,

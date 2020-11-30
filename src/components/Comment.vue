@@ -16,7 +16,7 @@
         </div>
 
         ID: {{ id }}
-        <br>
+        <br />
         REPLY: {{ data.reply_to }}
 
         <div class="wdg-comment__text">{{ text }}</div>
@@ -51,7 +51,6 @@
 
 <script>
 import TimeAgo from 'vue2-timeago';
-import Cookies from "js-cookie";
 import Message from "@/components/Message";
 
 export default {

@@ -32,10 +32,7 @@
                   v-for="(item, index) in sortItem"
                   :key="index"
                   :data-index="index"
-                  @click="
-                    sortSelected = sortItem[index];
-                    sortOpen = false;
-                  "
+                  @click="commentsSort(index)"
                 >
                   {{ item.name }}
                 </p>
@@ -184,13 +181,46 @@ export default {
     },
     commentsArray: e => {
       // new Algorithm
-      return e.$store.getters("SORT_COMMENT");
+      let com = e.$store.state.comments || [];
+
+      com.forEach(item => {
+        let id = item.id;
+        let second = nested(id, com);
+
+        second.forEach(item => {
+          item.nested = nested(item.id, com);
+        });
+
+        item.subcomment = second;
+      });
+
+      function nested(id, arr) {
+        return arr.filter((item, index) => {
+          if (Number(id) === Number(item.reply_to)) {
+            delete com[index];
+            return item;
+          }
+        });
+      }
+
+      let newArr = com.filter(item => item);
+
+      console.log("newArr: ", newArr);
+      return newArr.length ? newArr : [];
     },
     userData: e => {
       return e.$store.state.userData.data;
     }
   },
   methods: {
+    commentsSort(index) {
+      this.sortSelected = this.sortItem[index];
+      this.sortOpen = false;
+
+      this.$store.dispatch("GET_COMMENT", {
+        sort: this.sortSelected.type
+      });
+    },
     togglePopup(e) {
       this.$store.commit("TOGGLE_POPUP", e);
     },
