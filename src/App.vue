@@ -10,7 +10,7 @@
       <div class="wdg__wrap">
         <div class="wdg-top">
           <div class="wdg-title">
-            {{ commentLength }} комментариев page: {{ commentPage }}
+            {{ messagesLength }} page: {{ commentPage }}
           </div>
 
           <div class="wdg-main-sort">
@@ -24,7 +24,7 @@
                 class="wdg-custom_select_title"
                 @click="sortOpen = !sortOpen"
               >
-                <p>{{ sortSelected.name }}</p>
+                <p>{{ getSortSelected.name }}</p>
               </div>
 
               <div class="wdg-custom_select_dropdown">
@@ -109,7 +109,7 @@
             v-if="pageNotFinish"
             @click="moreComment"
           >
-            {{ 'SHOW_MORE' | translate }}
+            {{ "SHOW_MORE" | translate }}
           </button>
         </div>
       </div>
@@ -140,17 +140,14 @@ export default {
       root: this.$refs.wdgRoot,
       sortOpen: false,
       popupShareLink: "",
-      sortSelected: {
-        name: translate["SORT_POPULARITY"][this.$store.state.lang]
-      },
       sortItem: [
-        {
-          name: translate["SORT_POPULARITY"][this.$store.state.lang],
-          type: "popularity"
-        },
         {
           name: translate["SORT_NEW"][this.$store.state.lang],
           type: "newest"
+        },
+        {
+          name: translate["SORT_POPULARITY"][this.$store.state.lang],
+          type: "popularity"
         },
         {
           name: translate["SORT_OLD"][this.$store.state.lang],
@@ -160,6 +157,42 @@ export default {
     };
   },
   computed: {
+    messagesLength: e => {
+      let len = e.$store.state.comments.length;
+      let lang = e.$store.state.lang;
+      let prep = "";
+
+      if (lang === "ru") {
+        switch (len) {
+          case 1:
+            prep = "ий";
+            break;
+          case 2:
+            prep = "я";
+            break;
+          case 3:
+            prep = "я";
+            break;
+          case 4:
+            prep = "я";
+            break;
+          default:
+            prep = "ев";
+            break;
+        }
+      }
+
+      if (lang === "en") {
+        if (len > 1) {
+          prep = "s";
+        }
+      }
+
+      return `${len} ${translate['TEXT_COMMENT'][lang]}${prep}`;
+    },
+    getSortSelected: e => {
+      return e.$store.state.sortSelected;
+    },
     popup() {
       return this.$store.state.openPopup;
     },
@@ -183,8 +216,9 @@ export default {
       // new Algorithm
       let com = e.$store.state.comments || [];
 
-      com.forEach(item => {
+      com.forEach((item, index) => {
         let id = item.id;
+
         let second = nested(id, com);
 
         second.forEach(item => {
@@ -203,7 +237,9 @@ export default {
         });
       }
 
-      let newArr = com.filter(item => item);
+      let newArr = com.filter(item => {
+        return Number(item.reply_to) !== 0 ? false : item;
+      });
 
       console.log("newArr: ", newArr);
       return newArr.length ? newArr : [];
@@ -214,12 +250,13 @@ export default {
   },
   methods: {
     commentsSort(index) {
-      this.sortSelected = this.sortItem[index];
+      this.$store.commit("CHANGE_SORT_SELECTED", this.sortItem[index]);
       this.sortOpen = false;
 
-      this.$store.dispatch("GET_COMMENT", {
-        sort: this.sortSelected.type
-      });
+      console.log("sortItem: ", this.sortItem[index].type);
+      console.log("state sortSelected: ", this.$store.state.sortSelected.type);
+
+      this.$store.dispatch("GET_COMMENT");
     },
     togglePopup(e) {
       this.$store.commit("TOGGLE_POPUP", e);
