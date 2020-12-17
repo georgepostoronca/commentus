@@ -22,26 +22,53 @@
         <div class="wdg-comment__text">{{ text }}</div>
 
         <div class="wdg-comment__bottom">
-          <button class="wdg-link" v-if="ifreply" @click="ifMessage = !ifMessage">{{ "REPLY" | translate }}</button>
+          <button
+            class="wdg-link"
+            v-if="ifreply"
+            @click="ifMessage = !ifMessage"
+          >
+            {{ "REPLY" | translate }}
+          </button>
 
           <!--Rate-->
           <div class="wdg-rate">
-            <div class="wdg-rate__like" @click="like"></div>
+<!--            {{ ifLiked }}-->
+<!--            {{ ifDisliked }}-->
+            <div
+              class="wdg-rate__like"
+              :class="{ disabled: isLiked }"
+              @click="like('like')"
+            ></div>
 
-            <div class="wdg-rate__num" v-if="likes != 0" :class="[likes < 0 ? '--wdg-red' : '']">{{ likes }}</div>
+            <div
+              class="wdg-rate__num"
+              v-if="likes != 0"
+              :class="[likes < 0 ? '--wdg-red' : '']"
+            >
+              {{ likes }}
+            </div>
 
-            <div class="wdg-rate__dislike" @click="dislike"></div>
+            <div
+              class="wdg-rate__dislike"
+              :class="{ disabled: isDisliked }"
+              @click="like('dislike')"
+            ></div>
           </div>
 
           <!--Share-->
           <button class="wdg-comment__share" @click="openShare">
-            <span class="wdg-t">{{ 'SHARE' | translate }}</span>
+            <span class="wdg-t">{{ "SHARE" | translate }}</span>
             <span class="wdg-i"></span>
           </button>
         </div>
 
         <!-- для раскрытого состояния класс wdg-open -->
-        <Message v-if="ifMessage" :textarea="reply" :replyto="id"/>
+        <Message
+          v-show="ifMessage"
+          :textarea="reply"
+          :replyto="id"
+          :draft="getDraft"
+        />
       </div>
     </div>
 
@@ -50,7 +77,7 @@
 </template>
 
 <script>
-import TimeAgo from 'vue2-timeago';
+import TimeAgo from "vue2-timeago";
 import Message from "@/components/Message";
 
 export default {
@@ -69,42 +96,43 @@ export default {
       type: Boolean
     }
   },
+  data() {
+    return {
+      id: Number(this.data.id),
+      name: this.data.user_data.name ?? "",
+      avatar: this.data.user_data.avatar ?? "",
+      date: this.data.date ?? "",
+      text: this.data.text ?? "",
+      myLike: this.data.my_like ?? 0,
+      userLink: this.data.user_data.link ?? "",
+      likes: this.data.likes ?? 0,
+      draft: this.data.draft ?? false,
+      ifMessage: false,
+      isLiked: false,
+      isDisliked: false
+    };
+  },
+  created() {
+    let ifAuth = this.$store.state.userData;
+
+    this.ifMessage = this.getDraft;
+    this.isLiked = Object.keys(ifAuth).length ? Number(this.myLike) === 1 : false;
+    this.isDisliked = Object.keys(ifAuth).length ? Number(this.myLike) === -1 : false;
+  },
   computed: {
+    getDraft: e => {
+      let draft = e.$store.state.draft;
+      return draft && Number(e.id) === Number(draft.reply_to)
+        ? e.$store.state.draft.draft
+        : false;
+    },
     locale: e => {
       return e.$store.state.lang;
     }
   },
-  data() {
-    return {
-      id: Number(this.data.id),
-      name: this.data.user_data.name || "",
-      avatar: this.data.user_data.avatar || "",
-      date: this.data.date || "",
-      text: this.data.text || "",
-      userLink: this.data.user_data.link || "",
-      likes: this.data.likes.upvote || 0,
-      ifMessage: false
-    };
-  },
   methods: {
-    like() {
+    like(type) {
       let userData = this.$store.state.userData;
-
-      if (Object.keys(userData).length === 0 && userData.constructor === Object) {
-        this.$store.commit("TOGGLE_POPUP", "login");
-        return false;
-      }
-
-      this.$store.dispatch("LIKE_DISLIKE", {
-        type: "like",
-        id: this.id
-      });
-
-      this.likes = this.likes++;
-    },
-    dislike() {
-      let userData = this.$store.state.userData;
-
       if (
         Object.keys(userData).length === 0 &&
         userData.constructor === Object
@@ -113,12 +141,29 @@ export default {
         return false;
       }
 
-      this.$store.dispatch("LIKE_DISLIKE", {
-        type: "dislike",
-        id: this.id
-      });
-
-      this.likes = this.likes--;
+      this.$store
+        .dispatch("LIKE_DISLIKE", {
+          type: type,
+          id: this.id
+        })
+        .then(response => {
+          if (response.data.result === "true") {
+            switch (type) {
+              case "like":
+                if (this.isLiked) return false;
+                this.likes = this.likes === -1 ? this.likes + 2 : this.likes + 1;
+                this.isLiked = true;
+                this.isDisliked = false;
+                break;
+              case "dislike":
+                if (this.isDisliked) return false;
+                this.likes = this.likes === 1 ? this.likes - 2 : this.likes - 1;
+                this.isLiked = false;
+                this.isDisliked = true;
+                break;
+            }
+          }
+        });
     },
     openShare() {
       this.$store.commit("TOGGLE_POPUP", "share");
@@ -147,6 +192,14 @@ button.wdg-comment__share {
   .v-time-ago__text {
     font-family: initial;
     color: initial;
+  }
+}
+
+.wdg-rate__like,
+.wdg-rate__dislike {
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.2;
   }
 }
 </style>

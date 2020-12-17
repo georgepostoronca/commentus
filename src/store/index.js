@@ -25,11 +25,52 @@ export default new Vuex.Store({
     sortSelected: {
       name: translate["SORT_NEW"][langGlob],
       type: "newest"
-    }
+    },
+    loadingComment: false
   },
   getters: {
     COMMENTS_LENGTH: state => {
       return state.comments.length;
+    },
+    SORT_COMMENTS: state => {
+      let com = Array.from(state.comments) || [];
+
+      com.forEach(item => {
+        let id = item.id;
+
+        // if (state.draft && Number(item.id) === Number(state.draft.reply_to)) {
+        //   item.draft = state.draft;
+        // }
+
+        let second = nested(id, com);
+
+        second.forEach(item => {
+          item.nested = nested(item.id, com);
+        });
+
+        item.subcomment = second;
+      });
+
+      function nested(id, arr) {
+        return arr.filter((item, index) => {
+          if (Number(id) === Number(item.reply_to)) {
+
+            // if (state.draft && Number(item.id) === Number(state.draft.reply_to)) {
+            //   item.draft = state.draft;
+            // }
+
+            delete com[index];
+            return item;
+          }
+        });
+      }
+
+      let newArr = com.filter(item => {
+        return Number(item.reply_to) !== 0 ? false : item;
+      });
+
+      // console.log("newArr: ", newArr);
+      return newArr.length ? newArr : [];
     }
   },
   mutations: {
@@ -43,11 +84,18 @@ export default new Vuex.Store({
       if (payload.result === "false") {
         alert(payload.data);
       } else {
+        state.loadingComment = true;
         state.comments = [];
         // console.log("result comment: ", payload.data.data);
         // console.log("Comment: ------ ", state.comments);
 
-        state.comments = payload.data.data;
+        setTimeout(() => {
+          state.comments = payload.data.data;
+
+          setTimeout(() => {
+            state.loadingComment = false;
+          }, 500);
+        });
       }
     },
     GET_MORE_COMMENT: (state, payload) => {
@@ -65,10 +113,10 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    AJAX({commit}, data) {
-      axios
+    AJAX({ commit }, data) {
+      return axios
         .post(data.url, data.data)
-        .then(function (response) {
+        .then(response => {
           if (response.data.error || response.data.result === "false") {
             if (response.data.error) {
               alert(response.data.error);
@@ -83,15 +131,15 @@ export default new Vuex.Store({
 
           if (data.callback) {
             data.callback(response);
-          } else {
-            return true;
           }
+
+          return new Promise(resolve => resolve(response));
         })
-        .catch(function (error) {
+        .catch(function(error) {
           console.log(error);
         });
     },
-    LOGOUT_USER({state, dispatch}) {
+    LOGOUT_USER({ state, dispatch }) {
       let formData = new FormData();
       formData.append("method", "logout_user");
 
@@ -105,7 +153,7 @@ export default new Vuex.Store({
         }
       });
     },
-    LIKE_DISLIKE({state, dispatch}, payload) {
+    LIKE_DISLIKE({ state, dispatch }, payload) {
       let formData = new FormData();
       if (payload.type === "dislike") {
         formData.append("method", "dislike");
@@ -116,15 +164,15 @@ export default new Vuex.Store({
       formData.append("commentus_user_id", state.userData.data.user_id);
       formData.append("commentus_user_hash", state.hash);
 
-      dispatch("AJAX", {
+      return dispatch("AJAX", {
         url: state.apiUrl,
-        data: formData,
-        callback(result) {
-          console.log(result);
-        }
+        data: formData
+      }).then(response => {
+        console.log(response)
+        return response;
       });
     },
-    GET_DRAFT({state, commit, dispatch}) {
+    GET_DRAFT({ state, commit, dispatch }) {
       let method = "get_draft";
       let formData = new FormData();
       formData.append("method", method);
@@ -135,14 +183,15 @@ export default new Vuex.Store({
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,
-        callback({data}) {
+        callback({ data }) {
+          console.log("GET_DRAFT: ", data);
           if (data.result !== "false") {
-            commit("DRAFT", data.draft);
+            commit("DRAFT", data);
           }
         }
       });
     },
-    SAVE_DRAFT({state, dispatch}, payload) {
+    SAVE_DRAFT({ state, dispatch }, payload) {
       let formData = new FormData();
       formData.append("method", "save_draft");
       formData.append("commentus_user_hash", state.hash);
@@ -154,12 +203,12 @@ export default new Vuex.Store({
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,
-        callback({data}) {
-          console.log(data);
+        callback({ data }) {
+          console.log("SAVE_DRAFT: ", data);
         }
       });
     },
-    SEND_COMMENT({state, commit, dispatch}, payload) {
+    SEND_COMMENT({ state, commit, dispatch }, payload) {
       let method = "post_comment";
 
       payload.append("method", method);
@@ -185,34 +234,43 @@ export default new Vuex.Store({
       dispatch("AJAX", {
         url: state.apiUrl,
         data: payload,
-        callback() {
+        callback(log) {
+          if (log.data.result === "true") {
+            state.draft = {
+              draft: "",
+              result: "true"
+            };
+          }
+
           dispatch("GET_COMMENT");
         }
       });
     },
-    GET_COMMENT({state, commit, dispatch}) {
+    GET_COMMENT({ state, commit, dispatch }) {
       let data = new FormData();
       data.append("method", "get_comments");
       data.append("site_id", state.siteId);
-      data.append("url", location.origin);
+      data.append("url", location.href);
       data.append("sort_by", state.sortSelected.type);
+
+      if (state.hash) data.append("commentus_user_hash", state.hash);
 
       dispatch("AJAX", {
         url: state.apiUrl,
         data: data,
         callback(response) {
-          console.log(response.data);
+          // console.log(response.data);
           commit("GET_COMMENT", response);
         }
       });
     },
-    GET_MORE_COMMENT({state, commit, dispatch}) {
+    GET_MORE_COMMENT({ state, commit, dispatch }) {
       if (!state.pageNotFinish) return false;
 
       let formData = new FormData();
       formData.append("method", "get_comments");
       formData.append("site_id", state.siteId);
-      formData.append("url", location.origin);
+      formData.append("url", location.href);
 
       state.page = state.page + 1;
       formData.append("page", state.page);
@@ -230,7 +288,7 @@ export default new Vuex.Store({
         }
       });
     },
-    GET_COOKIE({state, dispatch, commit}) {
+    GET_COOKIE({ state, dispatch, commit }) {
       let hash = "commentus_user_hash";
       let formData = new FormData();
       formData.append("method", "check_user_login");
@@ -247,9 +305,7 @@ export default new Vuex.Store({
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,
-        callback({data}) {
-          console.log(data);
-
+        callback({ data }) {
           if (!Cookies.get(hash)) {
             if (data.result === "false") {
               Cookies.set(hash, data[hash]);
@@ -263,7 +319,7 @@ export default new Vuex.Store({
         }
       });
     },
-    GET_USER_HASH({state, dispatch, commit}, payload) {
+    GET_USER_HASH({ state, dispatch, commit }, payload) {
       let formData = new FormData();
       formData.append("method", "get_user_hash");
       formData.append("code", payload.code);
@@ -272,10 +328,11 @@ export default new Vuex.Store({
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,
-        callback({data}) {
+        callback({ data }) {
           if (data.result === "true") {
             Cookies.remove("commentus_user_hash");
             Cookies.set("commentus_user_hash", data.commentus_user_hash);
+            state.hash = data.commentus_user_hash;
             commit("SET_USER_DATA", data);
           }
         }

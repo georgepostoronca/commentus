@@ -1,6 +1,7 @@
 <template>
   <div>
-    <textarea name=""
+    <textarea
+      name=""
       @input="cursorPosition"
       @change="cursorPosition"
       @keyup.left="cursorPosition"
@@ -10,7 +11,6 @@
       @click="cursorPosition"
       ref="messageTextarea"
       cols="30"
-      rows="5"
     ></textarea>
 
     <div class="wdg-wrap">
@@ -57,12 +57,16 @@ export default {
         "😎",
         "😏",
         "😊",
-        "😉",
+        "😉"
       ],
-      curPosition: 0
+      curPosition: 0,
+      inputHeight: "0"
     };
   },
   methods: {
+    // resize () {
+    //   this.inputHeight = `${this.$refs.shadow.scrollHeight}px`
+    // },
     selectSmile(e) {
       let textarea = this.$refs.messageTextarea;
       let smile = e.target.innerText;
@@ -74,11 +78,16 @@ export default {
     },
 
     cursorPosition(e) {
+      console.log(e.target.scrollHeight);
+
       let content = e.target;
-      if ((content.selectionStart != null) && (content.selectionStart != undefined)) {
+      if (
+        content.selectionStart != null &&
+        content.selectionStart != undefined
+      ) {
         let position = content.selectionStart;
         this.curPosition = position;
-        console.log(position)
+        console.log(position);
       } else {
         return false;
       }

@@ -1,4 +1,8 @@
 module.exports = {
   productionSourceMap: false,
-  lintOnSave: false
-}
+  lintOnSave: false,
+  devServer: {
+    host: "commentus.loc"
+  },
+  publicPath: ""
+};

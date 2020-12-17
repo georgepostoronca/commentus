@@ -1,7 +1,17 @@
 <template>
   <!-- для раскрытого состояния класс wdg-open -->
-  <form class="wdg-add-comment" ref="messageWrap" :class="{'wdg-open': ifTextareaOpen}">
-    <textarea class="wdg-add-comment__field"
+  <form
+    class="wdg-add-comment"
+    ref="messageWrap"
+    :class="{ 'wdg-open': ifTextareaOpen }"
+  >
+    <!--    <div class="textarea-copy">-->
+    <!--      <pre ref="textareaCopy">{{ messageText }}</pre>-->
+    <!--    </div>-->
+
+    <textarea
+      class="wdg-add-comment__field"
+      rows="1"
       @input="cursorPosition"
       @change="cursorPosition"
       @keyup.left="cursorPosition"
@@ -21,7 +31,7 @@
           type="button"
           @click="getFormData"
         >
-          {{ 'SEND' | translate }}
+          {{ "SEND" | translate }}
         </button>
 
         <div class="wdg-file" v-if="files.length">
@@ -50,11 +60,11 @@
           <input
             type="file"
             name=""
-            id="input-file-01"
+            :id="'input-file-' + id"
             multiple
             @change="addFile"
           />
-          <label for="input-file-01">
+          <label :for="'input-file-' + id">
             <span class="wdg-icon-clip"></span>
           </label>
         </div>
@@ -90,7 +100,8 @@ export default {
   props: {
     textarea: String,
     type: String,
-    replyto: Number
+    replyto: Number,
+    draft: [Object, Boolean, String]
   },
   data() {
     return {
@@ -121,7 +132,7 @@ export default {
         "😎",
         "😏",
         "😊",
-        "😉",
+        "😉"
       ],
       curPosition: 0,
       files: [],
@@ -134,8 +145,16 @@ export default {
         "image/gif"
       ],
       messageFocused: false,
-      messageText: ""
+      messageText: this.draft || "",
+      textareaHeight: 0,
+      id: null
     };
+  },
+  created() {
+    this.messageFocused = !!this.draft;
+  },
+  mounted() {
+    this.id = this._uid;
   },
   computed: {
     lengthFile: e => {
@@ -151,14 +170,11 @@ export default {
         }
       }
 
-      if(len > 4 && lang === "ru") {
+      if (len > 4 && lang === "ru") {
         prep = "ов";
       }
 
-      return `${translate['ATTACHED'][lang]} ${len} ${translate["FILE"][lang]}${prep}`;
-    },
-    draft: e => {
-      return e.$store.state.draft;
+      return `${translate["ATTACHED"][lang]} ${len} ${translate["FILE"][lang]}${prep}`;
     },
     ifTextareaOpen: e => {
       let ifText = e.messageText;
@@ -184,21 +200,17 @@ export default {
     cursorPosition(e) {
       // получаем координаты курсора из textarea
       let content = e.target;
-      if ((content.selectionStart != null) && (content.selectionStart != undefined)) {
-        let position = content.selectionStart;
-        this.curPosition = position;
+      if (content.selectionStart != null) {
+        this.curPosition = content.selectionStart;
       } else {
         return false;
       }
     },
     addFile(e) {
-      //TODO проверка файлов на размер имя и количество
-      //TODO исправить проблему с добовлением файла в первы блок <Message> когда их больше 1
-
       let files = [].slice.call(e.target.files);
       let error = false;
 
-      console.log(files)
+      console.log(files);
 
       if (files.length > 5) {
         alert("Не больше 5 файлов");
@@ -261,12 +273,16 @@ export default {
       });
 
       let userData = this.$store.state.userData;
-      if (Object.keys(userData).length === 0 && userData.constructor === Object) {
+      if (
+        Object.keys(userData).length === 0 &&
+        userData.constructor === Object
+      ) {
         this.$store.commit("TOGGLE_POPUP", "login");
         console.log("Login");
       } else {
         this.$store.dispatch("SEND_COMMENT", form);
         this.resetTextarea();
+        // this.$forceUpdate();
       }
     }
   },
@@ -281,12 +297,63 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .wdg-add-smile {
   user-select: none;
 }
 
 .wdg-smile {
   cursor: pointer;
+}
+
+//.textarea-copy {
+//  margin: 0;
+//  //height: 0;
+//  //overflow: hidden;
+//  outline: 1px solid red;
+//
+//  pre {
+//    margin: 0;
+//    font-family: "PT Sans", sans-serif;
+//    font-size: 16px;
+//    letter-spacing: 0.03px;
+//    min-height: 19px;
+//    width: calc(100% - 80px);
+//    //white-space: normal;
+//    padding: 3px 0 0;
+//    line-height: normal;
+//  }
+//}
+//.textarea2Copy {
+//  outline: 2px solid red;
+//}
+//
+//.wdg-add-comment.wdg-open .wdg-add-comment__field {
+//  height: auto;
+//  transition: 0s;
+//}
+
+.wdg-add-comment__field {
+  overflow: auto;
+  line-height: 1.3;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  /* Track */
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.65);
+  }
+
+  /* Handle */
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 }
 </style>

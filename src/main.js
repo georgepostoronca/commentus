@@ -11,10 +11,9 @@ import Cookies from "js-cookie";
 // Get Parameter and add Cookie
 let userCode = "commentus_code";
 let userHash = "commentus_user_hash";
-// let userId = "commentus_user_id";
 let userId = "commentus_user_id";
 let URLLink = new URL(location.href);
-console.log(URLLink.search);
+// console.log(URLLink.search);
 let urlparam = new URLSearchParams(URLLink.search);
 
 // console.log("id: ", urlparam.get(userId));
@@ -46,7 +45,9 @@ if (urlparam.has(userCode)) {
   history.pushState(
     {},
     "",
-    location.origin + decodeURIComponent(urlparam.toString())
+    location.origin +
+      location.pathname +
+      decodeURIComponent(urlparam.toString())
   );
 } else {
   store.dispatch("GET_COOKIE");

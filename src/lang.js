@@ -40,8 +40,10 @@ const translate = {
     en: "Send"
   },
   INFO_TEXT: {
-    ru: "Оставляя комментарии на этом сайте, можно получать монеты COMMENTUS, котые затем можно тратить на привычные вам вещи.",
-    en: "Leaving comments on this site, you can get COMMENTUS coins, which you can then spend on things you are used to."
+    ru:
+      "Оставляя комментарии на этом сайте, можно получать монеты COMMENTUS, котые затем можно тратить на привычные вам вещи.",
+    en:
+      "Leaving comments on this site, you can get COMMENTUS coins, which you can then spend on things you are used to."
   },
   SHARE_LINK: {
     ru: "Поделиться ссылкой на комментарий",

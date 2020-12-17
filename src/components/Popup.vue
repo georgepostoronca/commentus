@@ -3,7 +3,7 @@
     <div class="wdg-popup__layout" @click="changeTypePopup('')"></div>
     <!--    Поделиться ссылкой-->
     <div v-if="popup === 'share'" class="wdg-popup__wrap">
-      <div class="wdg-popup__title">{{ 'SHARE_LINK' | translate }}</div>
+      <div class="wdg-popup__title">{{ "SHARE_LINK" | translate }}</div>
 
       <div class="wdg-popup__content">
         <div class="wdg-copy-link" @click="copyClipboard($event)">
@@ -38,7 +38,7 @@
 
     <!--    Войти через почту-->
     <div v-if="popup === 'email'" class="wdg-popup__wrap">
-      <div class="wdg-popup__title">{{ 'SIGN_EMAIL' | translate }}</div>
+      <div class="wdg-popup__title">{{ "SIGN_EMAIL" | translate }}</div>
 
       <div class="wdg-popup__content">
         <div class="wdg-link-back">
@@ -48,7 +48,7 @@
             @click.prevent="changeTypePopup('login')"
           >
             <span class="wdg-i">←</span>
-            <div class="wdg-t">{{ 'SIGN_SOCIAL' | translate }}</div>
+            <div class="wdg-t">{{ "SIGN_SOCIAL" | translate }}</div>
           </a>
         </div>
 
@@ -59,32 +59,48 @@
           @submit.prevent="submitForm"
         >
           <div class="wdg-form__row">
-            <div class="wdg-text">{{ 'INPUT_NAME' | translate }}:</div>
+            <div class="wdg-text">{{ "INPUT_NAME" | translate }}:</div>
             <div class="wdg-field">
-              <input type="text" name="name" class="wdg-inp" :class="{'error': !validName}" required v-model="name"/>
-              <span>{{ 'NAME_REQUIRED' | translate }}</span>
+              <input
+                type="text"
+                name="name"
+                class="wdg-inp"
+                :class="{ error: !validName }"
+                required
+                v-model="name"
+              />
+              <span>{{ "NAME_REQUIRED" | translate }}</span>
             </div>
           </div>
 
           <div class="wdg-form__row">
-            <div class="wdg-text">{{ 'INPUT_EMAIL' | translate }}:</div>
+            <div class="wdg-text">{{ "INPUT_EMAIL" | translate }}:</div>
             <div class="wdg-field">
-              <input type="email" name="email" class="wdg-inp" :class="{'error': !validEmail}" required v-model="email"/>
-              <span>{{ 'EMAIL_REQUIRED' | translate }}</span>
+              <input
+                type="email"
+                name="email"
+                class="wdg-inp"
+                :class="{ error: !validEmail }"
+                required
+                v-model="email"
+              />
+              <span>{{ "EMAIL_REQUIRED" | translate }}</span>
             </div>
           </div>
 
           <div class="wdg-form__bottom">
             <div class="wdg-l">
-              <button class="wdg-btn-blue size-l">{{ 'SIGNIN' | translate }}</button>
+              <button class="wdg-btn-blue size-l">
+                {{ "SIGNIN" | translate }}
+              </button>
             </div>
 
             <div class="wdg-r">
               <div class="wdg-auth-notify">
-                {{ 'POLICY_PART1' | translate }}
-                <a href="#">{{ 'POLICY_LINK1' | translate }}</a>
-                {{ 'POLICY_PART2' | translate }}
-                <a href="#">{{ 'POLICY_LINK2' | translate }}</a>
+                {{ "POLICY_PART1" | translate }}
+                <a href="#">{{ "POLICY_LINK1" | translate }}</a>
+                {{ "POLICY_PART2" | translate }}
+                <a href="#">{{ "POLICY_LINK2" | translate }}</a>
               </div>
             </div>
           </div>
@@ -96,11 +112,17 @@
 
     <!--    авторизоваться-->
     <div v-if="popup === 'login'" class="wdg-popup__wrap">
-      <div class="wdg-popup__title">{{ 'LOGIN_REQUIRED' | translate }}</div>
+      <div class="wdg-popup__title">{{ "LOGIN_REQUIRED" | translate }}</div>
 
       <div class="wdg-popup__content">
         <div class="wdg-soc-links">
-          <a :href="'https://commentus.net/account/authorize/google?redirect=' + currentUrl" class="wdg-item">
+          <a
+            :href="
+              'https://commentus.net/account/authorize/google?redirect=' +
+                currentUrl
+            "
+            class="wdg-item"
+          >
             <span class="wdg-icon-google"
               ><span class="path1"></span><span class="path2"></span
               ><span class="path3"></span><span class="path4"></span
@@ -141,15 +163,15 @@
 
           <a href="" class="wdg-item" @click.prevent="changeTypePopup('email')">
             <span class="wdg-icon-mail"></span>
-            <span class="wdg-t">{{ 'WITH_EMAIL' | translate }}</span>
+            <span class="wdg-t">{{ "WITH_EMAIL" | translate }}</span>
           </a>
         </div>
 
         <div class="wdg-auth-notify">
-          {{ 'POLICY_PART1' | translate }}
-          <a href="#">{{ 'POLICY_LINK1' | translate }}</a>
-          {{ 'POLICY_PART2' | translate }}
-          <a href="#">{{ 'POLICY_LINK2' | translate }}</a>
+          {{ "POLICY_PART1" | translate }}
+          <a href="#">{{ "POLICY_LINK1" | translate }}</a>
+          {{ "POLICY_PART2" | translate }}
+          <a href="#">{{ "POLICY_LINK2" | translate }}</a>
         </div>
       </div>
 
@@ -186,6 +208,10 @@ export default {
     shareLink: String
   },
   methods: {
+    openLink(link) {
+      console.log(encodeURI(link));
+      location.href = encodeURI(link);
+    },
     changeTypePopup(type) {
       this.$store.commit("TOGGLE_POPUP", type);
     },
@@ -204,7 +230,7 @@ export default {
       document.execCommand("copy");
 
       let innerText = text.innerText;
-      text.innerText = translate['COPY_CLIPBOARD'][this.$store.state.lang];
+      text.innerText = translate["COPY_CLIPBOARD"][this.$store.state.lang];
       target.parentElement.style.pointerEvents = "none";
       setTimeout(() => {
         text.innerText = innerText;
