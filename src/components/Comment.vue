@@ -66,6 +66,7 @@
         <Message
           v-show="ifMessage"
           :textarea="reply"
+          :valueText="name + ','"
           :replyto="id"
           :draft="getDraft"
         />
@@ -115,9 +116,15 @@ export default {
   created() {
     let ifAuth = this.$store.state.userData;
 
+    // console.log(Object.keys(ifAuth).length);
     this.ifMessage = this.getDraft;
-    this.isLiked = Object.keys(ifAuth).length ? Number(this.myLike) === 1 : false;
-    this.isDisliked = Object.keys(ifAuth).length ? Number(this.myLike) === -1 : false;
+    this.isLiked = Object.keys(ifAuth).length
+      ? Number(this.myLike) === 1
+      : false;
+
+    this.isDisliked = Object.keys(ifAuth).length
+      ? Number(this.myLike) === -1
+      : false;
   },
   computed: {
     getDraft: e => {
@@ -172,6 +179,11 @@ export default {
         location.href + "#commentus_widget_form" + this.id
       );
     }
+  },
+  watch: {
+    // ifMessage: () => {
+    //   console.log("UPD ifMessage")
+    // }
   }
 };
 </script>

@@ -116,11 +116,8 @@
 
       <div class="wdg-popup__content">
         <div class="wdg-soc-links">
-          <a
-            :href="
-              'https://commentus.net/account/authorize/google?redirect=' +
-                currentUrl
-            "
+          <button
+            @click="openLink('https://commentus.net/account/authorize/google?redirect=')"
             class="wdg-item"
           >
             <span class="wdg-icon-google"
@@ -128,7 +125,7 @@
               ><span class="path3"></span><span class="path4"></span
             ></span>
             <span class="wdg-t">Google</span>
-          </a>
+          </button>
 
           <a href="" class="wdg-item">
             <span class="wdg-icon-fb"></span>
@@ -209,8 +206,9 @@ export default {
   },
   methods: {
     openLink(link) {
-      console.log(encodeURI(link));
-      location.href = encodeURI(link);
+      this.$store.dispatch("SAVE_DRAFT").then(() => {
+        location.href = encodeURI(link + this.currentUrl);
+      });
     },
     changeTypePopup(type) {
       this.$store.commit("TOGGLE_POPUP", type);

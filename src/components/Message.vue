@@ -12,7 +12,7 @@
     <textarea
       class="wdg-add-comment__field"
       rows="1"
-      @input="cursorPosition"
+      @input="twoFn"
       @change="cursorPosition"
       @keyup.left="cursorPosition"
       @keyup.right="cursorPosition"
@@ -100,6 +100,7 @@ export default {
   props: {
     textarea: String,
     type: String,
+    valueText: String,
     replyto: Number,
     draft: [Object, Boolean, String]
   },
@@ -151,6 +152,10 @@ export default {
     };
   },
   created() {
+    if (this.valueText) {
+      this.messageText = this.valueText;
+    }
+
     this.messageFocused = !!this.draft;
   },
   mounted() {
@@ -187,6 +192,21 @@ export default {
     }
   },
   methods: {
+    twoFn(e) {
+      this.cursorPosition(e);
+      this.globalFocused();
+    },
+    globalFocused() {
+      this.$store.state.globalTextareaFocused = {
+        text: this.messageText,
+        replyto: this.replyto
+      };
+
+      // console.log(
+      //   this.$store.state.globalTextareaFocused.text,
+      //   this.$store.state.globalTextareaFocused.replyto
+      // );
+    },
     emojiOpneClose() {
       this.$refs.emojiParent.classList.toggle("wdg-open");
     },
@@ -254,14 +274,14 @@ export default {
     getFormData() {
       let form = new FormData();
 
-      if (!this.messageText) {
+      if (!this.messageText || this.messageText.trim() === this.valueText) {
         alert("Введите текст сообщения");
         return false;
       }
 
-      console.log("Msg: ", this.messageText);
-      console.log("id: ", this.siteId);
-      console.log("replyto: ", this.replyto);
+      // console.log("Msg: ", this.messageText);
+      // console.log("id: ", this.siteId);
+      // console.log("replyto: ", this.replyto);
 
       form.append("text", this.messageText);
       form.append("comment_id", this.siteId);

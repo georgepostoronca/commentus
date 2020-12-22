@@ -242,10 +242,12 @@ export default {
   },
   methods: {
     saveDraft() {
-      this.$store.dispatch("SAVE_DRAFT", {
-        text: "DRAFT:::The standard🤤",
-        replyto: 160
-      });
+      this.$store.state.globalTextareaFocused = {
+        text: "DRAFT:::",
+        replyto: 0
+      };
+
+      this.$store.dispatch("SAVE_DRAFT");
     },
     getDraft() {
       this.$store.dispatch("GET_DRAFT");

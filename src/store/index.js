@@ -26,7 +26,8 @@ export default new Vuex.Store({
       name: translate["SORT_NEW"][langGlob],
       type: "newest"
     },
-    loadingComment: false
+    loadingComment: false,
+    globalTextareaFocused: false
   },
   getters: {
     COMMENTS_LENGTH: state => {
@@ -191,14 +192,17 @@ export default new Vuex.Store({
         }
       });
     },
-    SAVE_DRAFT({ state, dispatch }, payload) {
+    SAVE_DRAFT({ state, dispatch }) {
       let formData = new FormData();
+
+      if (!state.globalTextareaFocused.text) return false;
+
       formData.append("method", "save_draft");
       formData.append("commentus_user_hash", state.hash);
       formData.append("site_id", state.siteId);
       formData.append("url", location.href);
-      formData.append("text", payload.text);
-      formData.append("reply_to", payload.replyto);
+      formData.append("text", state.globalTextareaFocused.text);
+      formData.append("reply_to", state.globalTextareaFocused.replyto);
 
       dispatch("AJAX", {
         url: state.apiUrl,
@@ -206,6 +210,8 @@ export default new Vuex.Store({
         callback({ data }) {
           console.log("SAVE_DRAFT: ", data);
         }
+      }).then(() => {
+        return new Promise(resolve => resolve);
       });
     },
     SEND_COMMENT({ state, commit, dispatch }, payload) {
