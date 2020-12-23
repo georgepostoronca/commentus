@@ -265,7 +265,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: data,
         callback(response) {
-          // console.log(response.data);
+          console.log(response);
           commit("GET_COMMENT", response);
         }
       });
@@ -304,14 +304,15 @@ export default new Vuex.Store({
         formData.append(hash, Cookies.get(hash));
       }
 
-      // console.log("Call GET__COOKIE");
-      // console.log("method: ", formData.get("method"));
-      // console.log("hash: ", formData.get("commentus_user_hash"))
+      console.log("Call GET__COOKIE");
+      console.log("method: ", formData.get("method"));
+      console.log("hash: ", formData.get("commentus_user_hash"))
 
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
+          console.log("GET_COOKIE response: ", data, data[hash], data.result)
           if (!Cookies.get(hash)) {
             if (data.result === "false") {
               Cookies.set(hash, data[hash]);

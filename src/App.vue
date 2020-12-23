@@ -179,7 +179,7 @@ export default {
     },
     messagesLength: e => {
       console.log(e.$store.state.comments);
-      let len = e.$store.state.comments.length;
+      let len = e.commentLength;
       let lang = e.$store.state.lang;
       let prep = "";
 
@@ -218,6 +218,7 @@ export default {
       return this.$store.state.openPopup;
     },
     commentLength: e => {
+      console.log(e.$store.state.comments, e.$store.state)
       return e.$store.state.comments.length;
     },
     theme: e => {
