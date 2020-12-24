@@ -326,6 +326,10 @@ button.wdg-user__exit {
     .wdg-comments {
       opacity: 0;
     }
+
+    .wdg-comments__more {
+      opacity: 0;
+    }
   }
 
   .wdg-comments {
@@ -336,7 +340,7 @@ button.wdg-user__exit {
   .wdg-comments__loading {
     opacity: 0;
     transition: 0.2s;
-    height: 0;
+    //height: 0;
     position: absolute;
     top: 0;
     left: 0;
@@ -350,6 +354,11 @@ button.wdg-user__exit {
     .loader {
       transition: 0.01s;
     }
+  }
+
+  .wdg-comments__more {
+    transition: .2s;
+    opacity: 1;
   }
 }
 
