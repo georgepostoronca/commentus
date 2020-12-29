@@ -22,6 +22,7 @@ export default new Vuex.Store({
     pageNotFinish: true,
     draft: false,
     openPopup: "",
+    totalComments: 0,
     sortSelected: {
       name: translate["SORT_NEW"][langGlob],
       type: "newest"
@@ -87,6 +88,9 @@ export default new Vuex.Store({
       } else {
         state.loadingComment = true;
         state.comments = [];
+        state.totalComments = payload.data.total_comments ?? 0;
+
+        // console.log("GET_COMMENT payload: ", payload);
         // console.log("result comment: ", payload.data.data);
         // console.log("Comment: ------ ", state.comments);
 
@@ -197,11 +201,19 @@ export default new Vuex.Store({
 
       if (!state.globalTextareaFocused.text) return false;
 
+      let userName = state.globalTextareaFocused.name ?? "";
+      let text = state.globalTextareaFocused.text;
+      let textSlice = text.slice(userName.length, text.length).trim();
+
+      // console.log("userName: ", userName);
+      // console.log("text: ", text);
+      // console.log("textSlice: ", textSlice);
+
       formData.append("method", "save_draft");
       formData.append("commentus_user_hash", state.hash);
       formData.append("site_id", state.siteId);
       formData.append("url", location.href);
-      formData.append("text", state.globalTextareaFocused.text);
+      formData.append("text", textSlice);
       formData.append("reply_to", state.globalTextareaFocused.replyto);
 
       dispatch("AJAX", {

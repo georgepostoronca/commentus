@@ -215,8 +215,10 @@ export default {
     },
     submitForm({ target: form }) {
       if (this.validName && this.validEmail) {
-        form.submit();
-        form.reset();
+        this.$store.dispatch("SAVE_DRAFT").then(() => {
+          form.submit();
+          form.reset();
+        });
       }
     },
     copyClipboard({ target }) {

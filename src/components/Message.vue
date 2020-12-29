@@ -102,7 +102,10 @@ export default {
     type: String,
     valueText: String,
     replyto: Number,
-    draft: [Object, Boolean, String]
+    draft: {
+      type: [Object, Boolean, String],
+      default: ""
+    }
   },
   data() {
     return {
@@ -153,7 +156,7 @@ export default {
   },
   created() {
     if (this.valueText) {
-      this.messageText = this.valueText;
+      this.messageText = this.valueText + " " + this.draft;
     }
 
     this.messageFocused = !!this.draft;
@@ -199,7 +202,8 @@ export default {
     globalFocused() {
       this.$store.state.globalTextareaFocused = {
         text: this.messageText,
-        replyto: this.replyto
+        replyto: this.replyto,
+        name: this.valueText
       };
 
       // console.log(

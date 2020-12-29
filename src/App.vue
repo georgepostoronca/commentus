@@ -65,8 +65,8 @@
           <span class="wdg-user__ava">
             <img :src="userData.avatar" alt="IMG" />
           </span>
-          <span class="wdg-user__text">Вы вошли как {{ userData.name }}.</span>
-          <button class="wdg-user__exit" @click="logoutUser">Выйти</button>
+          <span class="wdg-user__text">{{ "YOU_LOGED" | translate }} {{ userData.name }}.</span>
+          <button class="wdg-user__exit" @click="logoutUser">{{ "LOGOUT" | translate }}</button>
         </div>
 
         <div class="wdg-notify">
@@ -114,10 +114,11 @@
             </Comment>
           </div>
 
+<!--          commentsArray.length-->
           <button
             class="wdg-comments__more"
             v-if="pageNotFinish"
-            v-show="commentsArray.length"
+            v-show="totalComments"
             @click="moreComment"
           >
             {{ "SHOW_MORE" | translate }}
@@ -168,17 +169,23 @@ export default {
     };
   },
   computed: {
+    totalComments: e => {
+      let total = e.$store.state.totalComments;
+      let length = e.commentLength;
+
+      return length < total;
+    },
     getDraftRoot: e => {
       let draft = e.$store.state.draft;
       return draft && Number(0) === Number(draft.reply_to)
-          ? e.$store.state.draft.draft
-          : false;
+        ? e.$store.state.draft.draft
+        : false;
     },
     loadingComment: e => {
       return e.$store.state.loadingComment;
     },
     messagesLength: e => {
-      console.log(e.$store.state.comments);
+      // console.log(e.$store.state.comments);
       let len = e.commentLength;
       let lang = e.$store.state.lang;
       let prep = "";
@@ -218,7 +225,7 @@ export default {
       return this.$store.state.openPopup;
     },
     commentLength: e => {
-      console.log(e.$store.state.comments, e.$store.state)
+      // console.log(e.$store.state.comments, e.$store.state);
       return e.$store.state.comments.length;
     },
     theme: e => {
@@ -243,10 +250,10 @@ export default {
   },
   methods: {
     saveDraft() {
-      this.$store.state.globalTextareaFocused = {
-        text: "DRAFT:::",
-        replyto: 0
-      };
+      // this.$store.state.globalTextareaFocused = {
+      //   text: "DRAFT:::",
+      //   replyto: 0
+      // };
 
       this.$store.dispatch("SAVE_DRAFT");
     },
@@ -257,8 +264,8 @@ export default {
       this.$store.commit("CHANGE_SORT_SELECTED", this.sortItem[index]);
       this.sortOpen = false;
 
-      console.log("sortItem: ", this.sortItem[index].type);
-      console.log("state sortSelected: ", this.$store.state.sortSelected.type);
+      // console.log("sortItem: ", this.sortItem[index].type);
+      // console.log("state sortSelected: ", this.$store.state.sortSelected.type);
 
       this.$store.dispatch("GET_COMMENT");
     },
@@ -297,6 +304,15 @@ export default {
 </script>
 
 <style lang="scss">
+button {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.wdg {
+  //padding: 0;
+}
+
 .wdg-custom_select {
   user-select: none;
 }
@@ -357,7 +373,7 @@ button.wdg-user__exit {
   }
 
   .wdg-comments__more {
-    transition: .2s;
+    transition: 0.2s;
     opacity: 1;
   }
 }
