@@ -107,9 +107,9 @@
                   :data="val.subcomment[index2]"
                   :reply="'PLACEHOLDER_REPLY' | translate"
                   :replyto="Number(val.subcomment.id)"
-                  :ifreply="false"
                   @shareData="popupShare($event)"
                 ></Comment>
+                <!--                  :ifreply="false"-->
               </Comment>
             </Comment>
           </div>
@@ -307,7 +307,13 @@ export default {
 
 button.wdg-user__exit {
   border: 0;
+  font-size: 14px;
+  text-decoration: underline;
   background-color: transparent;
+
+  &:hover {
+    text-decoration: none;
+  }
 }
 
 .wdg-comments__wrap {

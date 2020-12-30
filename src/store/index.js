@@ -38,15 +38,14 @@ export default new Vuex.Store({
 
       com.forEach(item => {
         let id = item.id;
-
-        // if (state.draft && Number(item.id) === Number(state.draft.reply_to)) {
-        //   item.draft = state.draft;
-        // }
-
         let second = nested(id, com);
 
-        second.forEach(item => {
-          item.nested = nested(item.id, com);
+        second.forEach(item2 => {
+          item2.nested = nested(item2.id, com);
+
+          // let id2 = item2.id;
+          // let third = nested(id2, com);
+          // console.log(third)
         });
 
         item.subcomment = second;
