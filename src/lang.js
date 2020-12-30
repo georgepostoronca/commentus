@@ -39,6 +39,14 @@ const translate = {
     ru: "Отправить",
     en: "Send"
   },
+  LOGOUT: {
+    ru: "Выйти",
+    en: "Logout"
+  },
+  YOU_LOGED: {
+    ru: "Вы вошли как",
+    en: "You are logged in as"
+  },
   INFO_TEXT: {
     ru:
       "Оставляя комментарии на этом сайте, можно получать монеты COMMENTUS, котые затем можно тратить на привычные вам вещи.",
