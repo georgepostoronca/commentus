@@ -82,8 +82,7 @@
                 :key="index"
                 @click="selectSmile"
                 class="wdg-smile"
-                >{{ item }}</span
-              >
+                >{{ item }}</span>
             </div>
           </div>
         </div>
@@ -156,7 +155,7 @@ export default {
   },
   created() {
     if (this.valueText) {
-      this.messageText = this.valueText + " " + this.draft;
+      this.messageText = this.valueText + " " + (this.draft ? this.draft : "");
     }
 
     this.messageFocused = !!this.draft;

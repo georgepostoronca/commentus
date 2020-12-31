@@ -43,10 +43,6 @@ export default new Vuex.Store({
 
         second.forEach(item2 => {
           item2.nested = nested(item2.id, com);
-
-          // let id2 = item2.id;
-          // let third = nested(id2, com);
-          // console.log(third)
         });
 
         item.subcomment = second;
@@ -70,6 +66,7 @@ export default new Vuex.Store({
         return Number(item.reply_to) !== 0 ? false : item;
       });
 
+      console.log(newArr)
       // console.log("newArr: ", newArr);
       return newArr.length ? newArr : [];
     }

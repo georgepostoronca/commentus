@@ -108,7 +108,16 @@
                   :reply="'PLACEHOLDER_REPLY' | translate"
                   :replyto="Number(val.subcomment.id)"
                   @shareData="popupShare($event)"
-                ></Comment>
+                >
+                  <Comment
+                    v-for="(val3, index3) in val2.nested"
+                    :key="Number(val3.id)"
+                    :data="val.nested[index3]"
+                    :reply="'PLACEHOLDER_REPLY' | translate"
+                    :replyto="Number(va2.nested.id)"
+                    @shareData="popupShare($event)"
+                  ></Comment>
+                </Comment>
                 <!--                  :ifreply="false"-->
               </Comment>
             </Comment>
