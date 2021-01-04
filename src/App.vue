@@ -3,8 +3,8 @@
     <!-- при открытии всплывающего окна к элементу "wdg" добавлять "wdg--popup-active" -->
     <!-- ночной режим задается классом "wdg--night" -->
 
-    <button @click="saveDraft">Save Draft</button>
-    <button @click="getDraft">Get Draft</button>
+<!--    <button @click="saveDraft">Save Draft</button>-->
+<!--    <button @click="getDraft">Get Draft</button>-->
     <div
       class="wdg"
       ref="wdgRoot"
@@ -89,37 +89,38 @@
               :index="index"
               :reply="'PLACEHOLDER_REPLY' | translate"
               :replyto="Number(0)"
+              :idShare="Number(item.id)"
+              :level="0"
               @shareData="popupShare($event)"
             >
-              <Comment
-                v-if="item.subcomment.length"
-                v-for="(val, index) in item.subcomment"
-                :key="Number(val.id)"
-                :data="item.subcomment[index]"
-                :reply="'PLACEHOLDER_REPLY' | translate"
-                :replyto="Number(item.id)"
-                @shareData="popupShare($event)"
-              >
-                <Comment
-                  v-if="val.subcomment.length"
-                  v-for="(val2, index2) in val.subcomment"
-                  :key="Number(val2.id)"
-                  :data="val.subcomment[index2]"
-                  :reply="'PLACEHOLDER_REPLY' | translate"
-                  :replyto="Number(val.subcomment.id)"
-                  @shareData="popupShare($event)"
-                >
-                  <Comment
-                    v-for="(val3, index3) in val2.nested"
-                    :key="Number(val3.id)"
-                    :data="val.nested[index3]"
-                    :reply="'PLACEHOLDER_REPLY' | translate"
-                    :replyto="Number(va2.nested.id)"
-                    @shareData="popupShare($event)"
-                  ></Comment>
-                </Comment>
-                <!--                  :ifreply="false"-->
-              </Comment>
+<!--              <Comment-->
+<!--                v-for="(val, index) in item.subcomment"-->
+<!--                :key="Number(val.id)"-->
+<!--                :data="item.subcomment[index]"-->
+<!--                :reply="'PLACEHOLDER_REPLY' | translate"-->
+<!--                :replyto="Number(item.id)"-->
+<!--                @shareData="popupShare($event)"-->
+<!--              >-->
+<!--                <Comment-->
+<!--                  v-for="(val2, index2) in val.subcomment"-->
+<!--                  :key="Number(val2.id)"-->
+<!--                  :data="val.subcomment[index2]"-->
+<!--                  :reply="'PLACEHOLDER_REPLY' | translate"-->
+<!--                  :replyto="Number(val.subcomment.id)"-->
+<!--                  @shareData="popupShare($event)"-->
+<!--                >-->
+<!--                  {{ val2.subcomment }}-->
+<!--                  <Comment-->
+<!--                    v-for="(val3, index3) in val2.subcomment"-->
+<!--                    :key="Number(val3.id)"-->
+<!--                    :data="val.subcomment[index3]"-->
+<!--                    :reply="'PLACEHOLDER_REPLY' | translate"-->
+<!--                    :replyto="Number(va2.subcomment.id)"-->
+<!--                    @shareData="popupShare($event)"-->
+<!--                  ></Comment>-->
+<!--                </Comment>-->
+<!--                &lt;!&ndash;                  :ifreply="false"&ndash;&gt;-->
+<!--              </Comment>-->
             </Comment>
           </div>
 
@@ -160,7 +161,6 @@ export default {
     return {
       root: this.$refs.wdgRoot,
       sortOpen: false,
-      popupShareLink: "",
       sortItem: [
         {
           name: translate["SORT_NEW"][this.$store.state.lang],
@@ -178,6 +178,9 @@ export default {
     };
   },
   computed: {
+    popupShareLink: e => {
+      return e.$store.state.popupShareLink;
+    },
     totalComments: e => {
       let total = e.$store.state.totalComments;
       let length = e.commentLength;
@@ -282,7 +285,8 @@ export default {
       this.$store.commit("TOGGLE_POPUP", e);
     },
     popupShare(e) {
-      this.popupShareLink = e;
+      this.$store.state.popupShareLink = e;
+      // console.log("popupShareLink: ", this.$store.state.popupShareLink)
     },
     hideSelect() {
       this.sortOpen = false;
@@ -305,7 +309,7 @@ export default {
   watch: {
     popup(newVal) {
       if (newVal === "") {
-        this.popupShareLink = "";
+        this.$store.state.popupShareLink = "";
       }
     }
   }
@@ -319,7 +323,7 @@ button {
 }
 
 .wdg {
-  //padding: 0;
+  padding: 0;
 }
 
 .wdg-custom_select {

@@ -8,16 +8,18 @@
 
       <div class="wdg-comment__inner">
         <div class="wdg-comment__top">
-          <a href="" class="wdg-name">{{ name }}</a>
+          <a :href="userLink" class="wdg-name">{{ name }}</a>
           <div class="wdg-reward">🏅</div>
           <div class="wdg-date">
             <time-ago :datetime="date" long :locale="locale"></time-ago>
           </div>
         </div>
 
-        ID: {{ id }}
-        <br />
-        REPLY: {{ data.reply_to }}
+<!--        ID: {{ id }}-->
+<!--        <br />-->
+<!--        REPLY: {{ data.reply_to }}-->
+<!--        <br>-->
+<!--        LEVEL: {{ level }} {{ Number(level) < 4 }}-->
 
         <div class="wdg-comment__text">{{ text }}</div>
 
@@ -32,8 +34,8 @@
 
           <!--Rate-->
           <div class="wdg-rate">
-<!--            {{ ifLiked }}-->
-<!--            {{ ifDisliked }}-->
+            <!--            {{ ifLiked }}-->
+            <!--            {{ ifDisliked }}-->
             <div
               class="wdg-rate__like"
               :class="{ disabled: isLiked }"
@@ -42,7 +44,7 @@
 
             <div
               class="wdg-rate__num"
-              v-if="likes != 0"
+              v-if="likes !== 0"
               :class="[likes < 0 ? '--wdg-red' : '']"
             >
               {{ likes }}
@@ -73,7 +75,19 @@
       </div>
     </div>
 
-    <slot></slot>
+    <Comment
+      v-for="(val, index) in (Number(level) <= 3 ? data.subcomment : [])"
+      :key="Number(val.id)"
+      :index="index"
+      :data="data.subcomment[index]"
+      :reply="'PLACEHOLDER_REPLY' | translate"
+      :replyto="Number(data.id)"
+      :idShare="Number(val.id)"
+      :level="Number(level) + 1"
+      :ifreply="Number(level) <= 2"
+    ></Comment>
+<!--    <slot>-->
+<!--    </slot>-->
   </div>
 </template>
 
@@ -92,6 +106,8 @@ export default {
     reply: String,
     index: [Number, String],
     replyto: Number,
+    idShare: Number,
+    level: Number,
     ifreply: {
       default: true,
       type: Boolean
@@ -158,7 +174,8 @@ export default {
             switch (type) {
               case "like":
                 if (this.isLiked) return false;
-                this.likes = this.likes === -1 ? this.likes + 2 : this.likes + 1;
+                this.likes =
+                  this.likes === -1 ? this.likes + 2 : this.likes + 1;
                 this.isLiked = true;
                 this.isDisliked = false;
                 break;
@@ -173,11 +190,14 @@ export default {
         });
     },
     openShare() {
+      // console.log(this.idShare, e, id);
       this.$store.commit("TOGGLE_POPUP", "share");
-      this.$emit(
-        "shareData",
-        location.href + "#commentus_widget_form" + this.id
-      );
+
+      this.$store.state.popupShareLink = location.href + "#commentus_widget_form" + this.idShare;
+      // this.$emit(
+      //   "shareData",
+      //   location.href + "#commentus_widget_form" + this.idShare
+      // );
     }
   },
   watch: {

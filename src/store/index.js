@@ -23,6 +23,7 @@ export default new Vuex.Store({
     draft: false,
     openPopup: "",
     totalComments: 0,
+    popupShareLink: "",
     sortSelected: {
       name: translate["SORT_NEW"][langGlob],
       type: "newest"
@@ -35,38 +36,66 @@ export default new Vuex.Store({
       return state.comments.length;
     },
     SORT_COMMENTS: state => {
-      let com = Array.from(state.comments) || [];
+      // let com = Array.from(state.comments) || [];
+      //
+      // com.forEach(item => {
+      //   let id = item.id;
+      //   let second = nested(id, com);
+      //
+      //   second.forEach(item2 => {
+      //     item2.nested = nested(item2.id, com);
+      //   });
+      //
+      //   item.subcomment = second;
+      // });
+      //
+      // function nested(id, arr) {
+      //   return arr.filter((item, index) => {
+      //     if (Number(id) === Number(item.reply_to)) {
+      //
+      //       // if (state.draft && Number(item.id) === Number(state.draft.reply_to)) {
+      //       //   item.draft = state.draft;
+      //       // }
+      //
+      //       delete com[index];
+      //       return item;
+      //     }
+      //   });
+      // }
 
-      com.forEach(item => {
-        let id = item.id;
-        let second = nested(id, com);
+      let arr = Array.from(state.comments) || [];
+      let resArr = [];
 
-        second.forEach(item2 => {
-          item2.nested = nested(item2.id, com);
-        });
-
-        item.subcomment = second;
-      });
-
-      function nested(id, arr) {
+      function nestedItems(id, arr) {
         return arr.filter((item, index) => {
           if (Number(id) === Number(item.reply_to)) {
-
-            // if (state.draft && Number(item.id) === Number(state.draft.reply_to)) {
-            //   item.draft = state.draft;
-            // }
-
-            delete com[index];
+            delete arr[index];
             return item;
           }
         });
       }
 
-      let newArr = com.filter(item => {
+      function nestedRecursive(item) {
+        let nested = nestedItems(item.id, arr);
+
+        nested.forEach((el) => {
+          nestedRecursive(el);
+        });
+
+        if (nested.length) item.subcomment = nested;
+
+        return item;
+      }
+
+      arr.forEach(item => {
+        nestedRecursive(item, arr);
+      });
+
+      let newArr = arr.filter(item => {
         return Number(item.reply_to) !== 0 ? false : item;
       });
 
-      console.log(newArr)
+      // console.log(newArr);
       // console.log("newArr: ", newArr);
       return newArr.length ? newArr : [];
     }
@@ -169,7 +198,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: formData
       }).then(response => {
-        console.log(response)
+        // console.log(response)
         return response;
       });
     },
@@ -185,7 +214,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
-          console.log("GET_DRAFT: ", data);
+          // console.log("GET_DRAFT: ", data);
           if (data.result !== "false") {
             commit("DRAFT", data);
           }
@@ -216,7 +245,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
-          console.log("SAVE_DRAFT: ", data);
+          // console.log("SAVE_DRAFT: ", data);
         }
       }).then(() => {
         return new Promise(resolve => resolve);
@@ -273,7 +302,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: data,
         callback(response) {
-          console.log(response);
+          // console.log(response);
           commit("GET_COMMENT", response);
         }
       });
@@ -311,16 +340,15 @@ export default new Vuex.Store({
         state.hash = Cookies.get(hash);
         formData.append(hash, Cookies.get(hash));
       }
-
-      console.log("Call GET__COOKIE");
-      console.log("method: ", formData.get("method"));
-      console.log("hash: ", formData.get("commentus_user_hash"))
+      // console.log("Call GET__COOKIE");
+      // console.log("method: ", formData.get("method"));
+      // console.log("hash: ", formData.get("commentus_user_hash"))
 
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
-          console.log("GET_COOKIE response: ", data, data[hash], data.result)
+          // console.log("GET_COOKIE response: ", data, data[hash], data.result)
           if (!Cookies.get(hash)) {
             if (data.result === "false") {
               Cookies.set(hash, data[hash]);
