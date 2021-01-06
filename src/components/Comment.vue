@@ -15,11 +15,11 @@
           </div>
         </div>
 
-<!--        ID: {{ id }}-->
-<!--        <br />-->
-<!--        REPLY: {{ data.reply_to }}-->
-<!--        <br>-->
-<!--        LEVEL: {{ level }} {{ Number(level) < 4 }}-->
+                ID: {{ id }}
+                <br />
+                REPLY: {{ data.reply_to }}
+                <br>
+                LEVEL: {{ level }} {{ Number(level) < 4 }}
 
         <div class="wdg-comment__text">{{ text }}</div>
 
@@ -76,7 +76,7 @@
     </div>
 
     <Comment
-      v-for="(val, index) in (Number(level) <= 3 ? data.subcomment : [])"
+      v-for="(val, index) in Number(level) <= 3 ? data.subcomment : []"
       :key="Number(val.id)"
       :index="index"
       :data="data.subcomment[index]"
@@ -86,8 +86,8 @@
       :level="Number(level) + 1"
       :ifreply="Number(level) <= 2"
     ></Comment>
-<!--    <slot>-->
-<!--    </slot>-->
+    <!--    <slot>-->
+    <!--    </slot>-->
   </div>
 </template>
 
@@ -130,17 +130,8 @@ export default {
     };
   },
   created() {
-    let ifAuth = this.$store.state.userData;
-
-    // console.log(Object.keys(ifAuth).length);
     this.ifMessage = this.getDraft;
-    this.isLiked = Object.keys(ifAuth).length
-      ? Number(this.myLike) === 1
-      : false;
-
-    this.isDisliked = Object.keys(ifAuth).length
-      ? Number(this.myLike) === -1
-      : false;
+    this.ifLikeDis();
   },
   computed: {
     getDraft: e => {
@@ -151,9 +142,33 @@ export default {
     },
     locale: e => {
       return e.$store.state.lang;
+    },
+    ifAuth: e => {
+      return e.$store.state.userData;
     }
   },
+  updated() {
+    console.log("UPDATE");
+    this.ifLikeDis();
+  },
   methods: {
+    ifLikeDis() {
+      console.log("ifLikeDis");
+      this.isLiked = Object.keys(this.ifAuth).length
+        ? Number(this.myLike) === 1
+        : false;
+
+      this.isDisliked = Object.keys(this.ifAuth).length
+        ? Number(this.myLike) === -1
+        : false;
+
+      // console.log("=============");
+      // console.log("idLike: ", this.myLike);
+      // console.log("ID: ", this.id);
+      // console.log("Like: ", this.isLiked);
+      // console.log("Dislike: ", this.isDisliked);
+      // console.log("userData: ", this.$store.state.comments);
+    },
     like(type) {
       let userData = this.$store.state.userData;
       if (
@@ -193,7 +208,8 @@ export default {
       // console.log(this.idShare, e, id);
       this.$store.commit("TOGGLE_POPUP", "share");
 
-      this.$store.state.popupShareLink = location.href + "#commentus_widget_form" + this.idShare;
+      this.$store.state.popupShareLink =
+        location.href + "#commentus_widget_form" + this.idShare;
       // this.$emit(
       //   "shareData",
       //   location.href + "#commentus_widget_form" + this.idShare
@@ -204,6 +220,13 @@ export default {
     // ifMessage: () => {
     //   console.log("UPD ifMessage")
     // }
+
+    ifAuth: {
+      handler: function() {
+        console.log("ifAuth")
+        this.ifLikeDis();
+      }
+    }
   }
 };
 </script>

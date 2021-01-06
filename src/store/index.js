@@ -296,7 +296,8 @@ export default new Vuex.Store({
       data.append("url", location.href);
       data.append("sort_by", state.sortSelected.type);
 
-      if (state.hash) data.append("commentus_user_hash", state.hash);
+      if (Cookies.get("commentus_user_hash"))
+        data.append("commentus_user_hash", Cookies.get("commentus_user_hash"));
 
       dispatch("AJAX", {
         url: state.apiUrl,

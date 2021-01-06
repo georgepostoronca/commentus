@@ -322,7 +322,7 @@ button {
   padding-right: 0;
 }
 
-.wdg {
+body .wdg {
   padding: 0;
 }
 
