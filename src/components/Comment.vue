@@ -131,7 +131,15 @@ export default {
   },
   created() {
     this.ifMessage = this.getDraft;
-    this.ifLikeDis();
+    // this.ifLikeDis();
+
+    this.isLiked = Object.keys(this.ifAuth).length
+      ? Number(this.myLike) === 1
+      : false;
+
+    this.isDisliked = Object.keys(this.ifAuth).length
+      ? Number(this.myLike) === -1
+      : false;
   },
   computed: {
     getDraft: e => {
@@ -147,28 +155,7 @@ export default {
       return e.$store.state.userData;
     }
   },
-  updated() {
-    console.log("UPDATE");
-    this.ifLikeDis();
-  },
   methods: {
-    ifLikeDis() {
-      console.log("ifLikeDis");
-      this.isLiked = Object.keys(this.ifAuth).length
-        ? Number(this.myLike) === 1
-        : false;
-
-      this.isDisliked = Object.keys(this.ifAuth).length
-        ? Number(this.myLike) === -1
-        : false;
-
-      // console.log("=============");
-      // console.log("idLike: ", this.myLike);
-      // console.log("ID: ", this.id);
-      // console.log("Like: ", this.isLiked);
-      // console.log("Dislike: ", this.isDisliked);
-      // console.log("userData: ", this.$store.state.comments);
-    },
     like(type) {
       let userData = this.$store.state.userData;
       if (
@@ -220,13 +207,6 @@ export default {
     // ifMessage: () => {
     //   console.log("UPD ifMessage")
     // }
-
-    ifAuth: {
-      handler: function() {
-        console.log("ifAuth")
-        this.ifLikeDis();
-      }
-    }
   }
 };
 </script>
