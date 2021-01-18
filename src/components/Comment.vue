@@ -15,13 +15,16 @@
           </div>
         </div>
 
-                ID: {{ id }}
-                <br />
-                REPLY: {{ data.reply_to }}
-                <br>
-                LEVEL: {{ level }} {{ Number(level) < 4 }}
+<!--                ID: {{ id }}-->
+<!--                <br />-->
+<!--                REPLY: {{ data.reply_to }}-->
+<!--                <br>-->
+<!--                LEVEL: {{ level }} {{ Number(level) < 4 }}-->
 
-        <div class="wdg-comment__text">{{ text }}</div>
+        <div class="wdg-comment__text">
+          {{ text }}
+          <img v-for="(item, index) in files" :src="item" :key="index" :alt="'img' + index">
+        </div>
 
         <div class="wdg-comment__bottom">
           <button
@@ -75,8 +78,9 @@
       </div>
     </div>
 
+<!--    v-for="(val, index) in Number(level) <= 3 ? data.subcomment : []"-->
     <Comment
-      v-for="(val, index) in Number(level) <= 3 ? data.subcomment : []"
+        v-for="(val, index) in data.subcomment"
       :key="Number(val.id)"
       :index="index"
       :data="data.subcomment[index]"
@@ -84,8 +88,8 @@
       :replyto="Number(data.id)"
       :idShare="Number(val.id)"
       :level="Number(level) + 1"
-      :ifreply="Number(level) <= 2"
     ></Comment>
+    <!--      :ifreply="Number(level) <= 2"-->
     <!--    <slot>-->
     <!--    </slot>-->
   </div>
@@ -121,6 +125,7 @@ export default {
       date: this.data.date ?? "",
       text: this.data.text ?? "",
       myLike: this.data.my_like ?? 0,
+      files: this.data.files ?? [],
       userLink: this.data.user_data.link ?? "",
       likes: this.data.likes ?? 0,
       draft: this.data.draft ?? false,
@@ -212,6 +217,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.wdg-comment__text img {
+  display: block;
+  margin: 10px 0;
+  max-height: 300px;
+  max-width: 100%;
+}
 .wdg-comment__bottom {
   button {
     background-color: transparent;
@@ -235,6 +246,14 @@ button.wdg-comment__share {
   &.disabled {
     pointer-events: none;
     opacity: 0.2;
+  }
+}
+
+.wdg-comment .wdg-comment .wdg-comment .wdg-comment .wdg-comment {
+  margin-left: 0;
+
+  @media (max-width: 480px) {
+    margin-left: -26px;
   }
 }
 </style>

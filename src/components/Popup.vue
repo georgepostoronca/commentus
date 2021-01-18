@@ -117,7 +117,11 @@
       <div class="wdg-popup__content">
         <div class="wdg-soc-links">
           <button
-            @click="openLink('https://commentus.net/account/authorize/google?redirect=')"
+            @click="
+              openLink(
+                'https://commentus.net/account/authorize/google?redirect='
+              )
+            "
             class="wdg-item"
           >
             <span class="wdg-icon-google"
@@ -207,8 +211,21 @@ export default {
   methods: {
     openLink(link) {
       this.$store.dispatch("SAVE_DRAFT").then(() => {
+        // console.log("then SAVE_DRAFT");
         location.href = encodeURI(link + this.currentUrl);
       });
+
+      // let promise = new Promise(resolve => {
+      //   resolve();
+      // });
+      //
+      // promise
+      //   .then(() => {
+      //     this.$store.dispatch("SAVE_DRAFT");
+      //   })
+      //   .then(() => {
+      //     console.log("then");
+      //   });
     },
     changeTypePopup(type) {
       this.$store.commit("TOGGLE_POPUP", type);

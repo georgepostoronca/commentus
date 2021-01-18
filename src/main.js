@@ -6,7 +6,7 @@ import translate from "./lang.js";
 
 import "url-search-params-polyfill";
 import "url-polyfill";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 
 // Get Parameter and add Cookie
 let userCode = "commentus_code";

@@ -162,6 +162,13 @@ export default {
   },
   mounted() {
     this.id = this._uid;
+
+    // console.log(this.textarea, this.draft)
+    //
+    // console.log(
+    //   "globalTextareaFocused",
+    //   this.$store.state.globalTextareaFocused
+    // );
   },
   computed: {
     lengthFile: e => {
@@ -199,15 +206,16 @@ export default {
       this.globalFocused();
     },
     globalFocused() {
+      // console.log("this.textarea")
       this.$store.state.globalTextareaFocused = {
         text: this.messageText,
         replyto: this.replyto,
-        name: this.valueText
+        name: this.valueText ?? ""
       };
 
       // console.log(
-      //   this.$store.state.globalTextareaFocused.text,
-      //   this.$store.state.globalTextareaFocused.replyto
+      //   "globalTextareaFocused",
+      //   this.$store.state.globalTextareaFocused
       // );
     },
     emojiOpneClose() {
@@ -233,7 +241,7 @@ export default {
       let files = [].slice.call(e.target.files);
       let error = false;
 
-      console.log(files);
+      // console.log(files);
 
       if (files.length > 5) {
         alert("Не больше 5 файлов");
@@ -301,7 +309,7 @@ export default {
         userData.constructor === Object
       ) {
         this.$store.commit("TOGGLE_POPUP", "login");
-        console.log("Login");
+        // console.log("Login");
       } else {
         this.$store.dispatch("SEND_COMMENT", form);
         this.resetTextarea();
@@ -314,6 +322,10 @@ export default {
       if (newCount && this.type === "root") {
         this.$refs.messageTextarea.value = newCount;
         this.messageText = newCount;
+      }
+
+      if (this.draft) {
+        this.globalFocused();
       }
     }
   }

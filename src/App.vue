@@ -3,8 +3,9 @@
     <!-- при открытии всплывающего окна к элементу "wdg" добавлять "wdg--popup-active" -->
     <!-- ночной режим задается классом "wdg--night" -->
 
-<!--    <button @click="saveDraft">Save Draft</button>-->
-<!--    <button @click="getDraft">Get Draft</button>-->
+    <button @click="saveDraft">Save Draft</button>
+    <input type="text" ref="draftInput" value="DRAFT::">
+    <button @click="getDraft">Get Draft</button>
     <div
       class="wdg"
       ref="wdgRoot"
@@ -189,6 +190,7 @@ export default {
     },
     getDraftRoot: e => {
       let draft = e.$store.state.draft;
+      // return draft ?? "";
       return draft && Number(0) === Number(draft.reply_to)
         ? e.$store.state.draft.draft
         : false;
@@ -262,10 +264,10 @@ export default {
   },
   methods: {
     saveDraft() {
-      // this.$store.state.globalTextareaFocused = {
-      //   text: "DRAFT:::",
-      //   replyto: 0
-      // };
+      this.$store.state.globalTextareaFocused = {
+        text: this.$refs.draftInput.value,
+        replyto: 0
+      };
 
       this.$store.dispatch("SAVE_DRAFT");
     },

@@ -78,7 +78,7 @@ export default {
     },
 
     cursorPosition(e) {
-      console.log(e.target.scrollHeight);
+      // console.log(e.target.scrollHeight);
 
       let content = e.target;
       if (
@@ -87,7 +87,7 @@ export default {
       ) {
         let position = content.selectionStart;
         this.curPosition = position;
-        console.log(position);
+        // console.log(position);
       } else {
         return false;
       }

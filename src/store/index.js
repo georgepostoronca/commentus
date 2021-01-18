@@ -64,7 +64,6 @@ export default new Vuex.Store({
       // }
 
       let arr = Array.from(state.comments) || [];
-      let resArr = [];
 
       function nestedItems(id, arr) {
         return arr.filter((item, index) => {
@@ -78,12 +77,11 @@ export default new Vuex.Store({
       function nestedRecursive(item) {
         let nested = nestedItems(item.id, arr);
 
-        nested.forEach((el) => {
+        nested.forEach(el => {
           nestedRecursive(el);
         });
 
         if (nested.length) item.subcomment = nested;
-
         return item;
       }
 
@@ -180,6 +178,7 @@ export default new Vuex.Store({
           state.hash = false;
           state.userData = {};
           Cookies.remove("commentus_user_hash");
+          dispatch("GET_COOKIE");
         }
       });
     },
@@ -223,7 +222,7 @@ export default new Vuex.Store({
     },
     SAVE_DRAFT({ state, dispatch }) {
       let formData = new FormData();
-
+      // console.log("test SAVE_DRAFT: ", state.globalTextareaFocused)
       if (!state.globalTextareaFocused.text) return false;
 
       let userName = state.globalTextareaFocused.name ?? "";
@@ -241,19 +240,13 @@ export default new Vuex.Store({
       formData.append("text", textSlice);
       formData.append("reply_to", state.globalTextareaFocused.replyto);
 
-      dispatch("AJAX", {
+      return dispatch("AJAX", {
         url: state.apiUrl,
-        data: formData,
-        callback({ data }) {
-          // console.log("SAVE_DRAFT: ", data);
-        }
-      }).then(() => {
-        return new Promise(resolve => resolve);
+        data: formData
       });
     },
     SEND_COMMENT({ state, commit, dispatch }, payload) {
       let method = "post_comment";
-
       payload.append("method", method);
       payload.append("commentus_user_hash", state.hash);
       payload.append("url", location.href);
