@@ -4,6 +4,8 @@ import App from "./App.vue";
 import store from "./store";
 import translate from "./lang.js";
 
+import "../public/css/main.min.css";
+
 import "url-search-params-polyfill";
 import "url-polyfill";
 // import Cookies from "js-cookie";

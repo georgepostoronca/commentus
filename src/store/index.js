@@ -248,7 +248,8 @@ export default new Vuex.Store({
     SEND_COMMENT({ state, commit, dispatch }, payload) {
       let method = "post_comment";
       payload.append("method", method);
-      payload.append("commentus_user_hash", state.hash);
+      console.log(Cookies.get("commentus_user_hash"), state.hash);
+      payload.append("commentus_user_hash", Cookies.get("commentus_user_hash"));
       payload.append("url", location.href);
       payload.append("site_id", state.siteId);
 
@@ -342,7 +343,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
-          // console.log("GET_COOKIE response: ", data, data[hash], data.result)
+          console.log("GET_COOKIE response: ", data, data[hash], data.result)
           if (!Cookies.get(hash)) {
             if (data.result === "false") {
               Cookies.set(hash, data[hash]);
@@ -366,6 +367,7 @@ export default new Vuex.Store({
         url: state.apiUrl,
         data: formData,
         callback({ data }) {
+          console.log("GET_USER_HASH: ", data);
           if (data.result === "true") {
             Cookies.remove("commentus_user_hash");
             Cookies.set("commentus_user_hash", data.commentus_user_hash);

@@ -116,6 +116,8 @@
 
       <div class="wdg-popup__content">
         <div class="wdg-soc-links">
+
+          <!-- Google -->
           <button
             @click="
               openLink(
@@ -131,37 +133,78 @@
             <span class="wdg-t">Google</span>
           </button>
 
-          <a href="" class="wdg-item">
+          <!-- Facebook -->
+          <button
+            @click="
+              openLink(
+                'https://commentus.net/account/authorize/facebook?redirect='
+              )
+            "
+            class="wdg-item"
+          >
             <span class="wdg-icon-fb"></span>
             <span class="wdg-t">Facebook</span>
-          </a>
+          </button>
 
-          <a href="" class="wdg-item">
+          <!-- Telegram -->
+          <button
+            @click="
+              openLink(
+                'https://commentus.net/account/authorize/telegram?redirect='
+              )
+            "
+            class="wdg-item"
+          >
             <span class="wdg-icon-telegram-1"
               ><span class="path1"></span><span class="path2"></span
             ></span>
             <span class="wdg-t">Telegram</span>
-          </a>
+          </button>
 
-          <a href="" class="wdg-item">
+          <!-- VK -->
+          <button
+            @click="
+              openLink(
+                'https://commentus.net/account/authorize/vk?redirect='
+              )
+            "
+            class="wdg-item"
+          >
             <span class="wdg-icon-vk"
               ><span class="path1"></span><span class="path2"></span
             ></span>
             <span class="wdg-t">VK</span>
-          </a>
+          </button>
 
-          <a href="" class="wdg-item">
+          <!-- Twitter -->
+          <button
+            @click="
+              openLink(
+                'https://commentus.net/account/authorize/twitter?redirect='
+              )
+            "
+            class="wdg-item"
+          >
             <span class="wdg-icon-twitter"></span>
             <span class="wdg-t">Twitter</span>
-          </a>
+          </button>
 
-          <a href="" class="wdg-item">
+          <!-- Minter ID -->
+          <button
+            @click="
+              openLink(
+                'https://commentus.net/account/authorize/minterid?redirect='
+              )
+            "
+            class="wdg-item"
+          >
             <span class="wdg-icon-minter"
               ><span class="path1"></span><span class="path2"></span
             ></span>
             <span class="wdg-t">Minter ID</span>
-          </a>
+          </button>
 
+          <!-- Email -->
           <a href="" class="wdg-item" @click.prevent="changeTypePopup('email')">
             <span class="wdg-icon-mail"></span>
             <span class="wdg-t">{{ "WITH_EMAIL" | translate }}</span>

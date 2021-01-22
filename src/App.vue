@@ -3,9 +3,9 @@
     <!-- при открытии всплывающего окна к элементу "wdg" добавлять "wdg--popup-active" -->
     <!-- ночной режим задается классом "wdg--night" -->
 
-    <button @click="saveDraft">Save Draft</button>
-    <input type="text" ref="draftInput" value="DRAFT::">
-    <button @click="getDraft">Get Draft</button>
+<!--    <button @click="saveDraft">Save Draft</button>-->
+<!--    <input type="text" ref="draftInput" value="DRAFT::">-->
+<!--    <button @click="getDraft">Get Draft</button>-->
     <div
       class="wdg"
       ref="wdgRoot"
@@ -263,17 +263,17 @@ export default {
     }
   },
   methods: {
-    saveDraft() {
-      this.$store.state.globalTextareaFocused = {
-        text: this.$refs.draftInput.value,
-        replyto: 0
-      };
-
-      this.$store.dispatch("SAVE_DRAFT");
-    },
-    getDraft() {
-      this.$store.dispatch("GET_DRAFT");
-    },
+    // saveDraft() {
+    //   this.$store.state.globalTextareaFocused = {
+    //     text: this.$refs.draftInput.value,
+    //     replyto: 0
+    //   };
+    //
+    //   this.$store.dispatch("SAVE_DRAFT");
+    // },
+    // getDraft() {
+    //   this.$store.dispatch("GET_DRAFT");
+    // },
     commentsSort(index) {
       this.$store.commit("CHANGE_SORT_SELECTED", this.sortItem[index]);
       this.sortOpen = false;
@@ -304,6 +304,28 @@ export default {
     this.$store.dispatch("GET_COMMENT");
     // this.$store.dispatch("GET_COOKIE");
     // this.$store.dispatch("GET_DRAFT");
+
+
+  },
+  mounted() {
+    // Scroll To
+    let link = location.hash;
+    if (link.includes("commentus_widget_form")) {
+      // console.log(
+      //     this.$refs.wdgRoot.offsetTop,
+      //     this.$refs,
+      //     this.$refs.wdgRoot
+      // )
+      setTimeout(() => {
+        window.scroll({
+          behavior: "smooth",
+          left: 0,
+          top: this.$refs.wdgRoot.offsetTop - 10
+        });
+      }, 1000);
+
+      // this.$refs.wdgRoot.scrollIntoView({block: "start", behavior: "smooth"});
+    }
   },
   directives: {
     ClickOutside

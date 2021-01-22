@@ -70,12 +70,12 @@
         </div>
 
         <!-- открытое состояние задается классом wdg-open -->
-        <div class="wdg-add-smile" ref="emojiParent">
+        <div class="wdg-add-smile" ref="emojiParent" :class="{'active': emojiOpenClose}">
           <div class="wdg-add-smile__btn" @click="emojiOpneClose">
             <span class="wdg-icon-smile"></span>
           </div>
 
-          <div class="wdg-add-smile__list">
+          <div class="wdg-add-smile__list" ref="smilesList">
             <div class="wdg-wrap">
               <span
                 v-for="(item, index) in smile"
@@ -150,7 +150,8 @@ export default {
       messageFocused: false,
       messageText: this.draft || "",
       textareaHeight: 0,
-      id: null
+      id: null,
+      emojiOpenClose: false
     };
   },
   created() {
@@ -218,8 +219,24 @@ export default {
       //   this.$store.state.globalTextareaFocused
       // );
     },
+    getGlobalOffset(el) {
+      var x = 0, y = 0
+      while (el) {
+        x += el.offsetLeft
+        y += el.offsetTop
+        el = el.offsetParent
+      }
+      return { left: x, top: y }
+    },
     emojiOpneClose() {
-      this.$refs.emojiParent.classList.toggle("wdg-open");
+      let top = "--top";
+      let wdg = document.querySelector(".wdg");
+      let list = this.$refs.smilesList;
+      let offset = this.getGlobalOffset(list);
+
+      console.log(offset)
+
+      this.emojiOpenClose = !this.emojiOpenClose;
     },
     selectSmile(e) {
       let textarea = this.$refs.messageTextarea;
@@ -333,6 +350,33 @@ export default {
 </script>
 
 <style scoped lang="scss">
+
+.wdg-add-smile {
+  &__list {
+    pointer-events: none;
+    //transform: translateY(5px);
+    transition: .1s;
+    opacity: 0;
+    display: block;
+  }
+
+  &__btn {
+    background: #f5f5f5;
+    color: #474748;
+  }
+
+  &.active &__btn {
+    background: #474748;
+    color: #fff;
+  }
+
+  &.active &__list {
+    opacity: 1;
+    pointer-events: all;
+    //transform: translateY(0);
+  }
+}
+
 .wdg-add-smile {
   user-select: none;
 }

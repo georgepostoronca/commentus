@@ -9,7 +9,7 @@
       <div class="wdg-comment__inner">
         <div class="wdg-comment__top">
           <a :href="userLink" class="wdg-name">{{ name }}</a>
-          <div class="wdg-reward">🏅</div>
+<!--          <div class="wdg-reward">🏅</div>-->
           <div class="wdg-date">
             <time-ago :datetime="date" long :locale="locale"></time-ago>
           </div>
@@ -200,8 +200,11 @@ export default {
       // console.log(this.idShare, e, id);
       this.$store.commit("TOGGLE_POPUP", "share");
 
+      // console.log("openShare");
+      // console.log(location.href, location.origin, "#commentus_widget_form", this.idShare);
+
       this.$store.state.popupShareLink =
-        location.href + "#commentus_widget_form" + this.idShare;
+        location.origin + location.pathname + "#commentus_widget_form" + this.idShare;
       // this.$emit(
       //   "shareData",
       //   location.href + "#commentus_widget_form" + this.idShare
