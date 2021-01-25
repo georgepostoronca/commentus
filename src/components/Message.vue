@@ -75,7 +75,7 @@
             <span class="wdg-icon-smile"></span>
           </div>
 
-          <div class="wdg-add-smile__list" ref="smilesList">
+          <div class="wdg-add-smile__list" ref="smilesList" :class="{'--top': emojiOpenCloseTop}">
             <div class="wdg-wrap">
               <span
                 v-for="(item, index) in smile"
@@ -151,7 +151,8 @@ export default {
       messageText: this.draft || "",
       textareaHeight: 0,
       id: null,
-      emojiOpenClose: false
+      emojiOpenClose: false,
+      emojiOpenCloseTop: false
     };
   },
   created() {
@@ -228,15 +229,26 @@ export default {
       }
       return { left: x, top: y }
     },
-    emojiOpneClose() {
-      let top = "--top";
+    ifEmojiTop() {
       let wdg = document.querySelector(".wdg");
       let list = this.$refs.smilesList;
       let offset = this.getGlobalOffset(list);
 
-      console.log(offset)
-
-      this.emojiOpenClose = !this.emojiOpenClose;
+      this.emojiOpenCloseTop =
+        offset.top + list.offsetHeight > wdg.clientHeight;
+    },
+    emojiOpneClose() {
+      if (!this.emojiOpenClose) {
+        console.log("Open");
+        this.ifEmojiTop();
+        this.emojiOpenClose = !this.emojiOpenClose;
+      } else {
+        console.log("Close");
+        this.emojiOpenClose = !this.emojiOpenClose;
+        setTimeout(() => {
+          this.ifEmojiTop();
+        }, 100)
+      }
     },
     selectSmile(e) {
       let textarea = this.$refs.messageTextarea;
