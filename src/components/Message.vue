@@ -71,11 +71,11 @@
 
         <!-- открытое состояние задается классом wdg-open -->
         <div class="wdg-add-smile" ref="emojiParent" :class="{'active': emojiOpenClose}">
-          <div class="wdg-add-smile__btn" @click="emojiOpneClose">
+          <div class="wdg-add-smile__btn" ref="smilesBtn" @click="emojiOpneClose">
             <span class="wdg-icon-smile"></span>
           </div>
 
-          <div class="wdg-add-smile__list" ref="smilesList" :class="{'--top': emojiOpenCloseTop}">
+          <div class="wdg-add-smile__list" ref="smilesList" :class="{'--top': emojiOpenCloseTop, '--left': emojiOpenCloseLeft}">
             <div class="wdg-wrap">
               <span
                 v-for="(item, index) in smile"
@@ -152,7 +152,8 @@ export default {
       textareaHeight: 0,
       id: null,
       emojiOpenClose: false,
-      emojiOpenCloseTop: false
+      emojiOpenCloseTop: false,
+      emojiOpenCloseLeft: false
     };
   },
   created() {
@@ -232,22 +233,35 @@ export default {
     ifEmojiTop() {
       let wdg = document.querySelector(".wdg");
       let list = this.$refs.smilesList;
-      let offset = this.getGlobalOffset(list);
+      let btn = this.$refs.smilesBtn;
+      let offset;
+      offset = this.getGlobalOffset(btn);
+
+      console.log(offset, btn.getBoundingClientRect());
+
+      console.log(
+        offset.top + btn.offsetHeight + list.offsetHeight,
+        wdg.clientHeight
+      );
+
+      console.log(offset.top + btn.offsetHeight, list.offsetHeight)
 
       this.emojiOpenCloseTop =
-        offset.top + list.offsetHeight > wdg.clientHeight;
+        offset.top + btn.offsetHeight + list.offsetHeight > wdg.clientHeight;
+
+      this.emojiOpenCloseLeft = wdg.clientHeight < 250;
     },
     emojiOpneClose() {
       if (!this.emojiOpenClose) {
-        console.log("Open");
         this.ifEmojiTop();
         this.emojiOpenClose = !this.emojiOpenClose;
       } else {
-        console.log("Close");
         this.emojiOpenClose = !this.emojiOpenClose;
         setTimeout(() => {
-          this.ifEmojiTop();
-        }, 100)
+          this.emojiOpenCloseTop = false;
+          this.emojiOpenCloseLeft = false;
+          // this.ifEmojiTop();
+        }, 100);
       }
     },
     selectSmile(e) {
@@ -367,7 +381,8 @@ export default {
   &__list {
     pointer-events: none;
     //transform: translateY(5px);
-    transition: .1s;
+    transition: 0s;
+    //transition: opacity .2s;
     opacity: 0;
     display: block;
   }
@@ -386,6 +401,21 @@ export default {
     opacity: 1;
     pointer-events: all;
     //transform: translateY(0);
+
+    &.--left {
+      position: absolute;
+      right: 43px;
+      top: 50%;
+      bottom: inherit;
+      transform: translateY(-50%);
+
+      &:before {
+        top: 50%;
+        right: -1px;
+        box-shadow: 1px -1px 0 #d9d8d9;
+        transform: rotate(45deg) translateY(-50%);
+      }
+    }
   }
 }
 
