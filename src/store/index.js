@@ -36,33 +36,6 @@ export default new Vuex.Store({
       return state.comments.length;
     },
     SORT_COMMENTS: state => {
-      // let com = Array.from(state.comments) || [];
-      //
-      // com.forEach(item => {
-      //   let id = item.id;
-      //   let second = nested(id, com);
-      //
-      //   second.forEach(item2 => {
-      //     item2.nested = nested(item2.id, com);
-      //   });
-      //
-      //   item.subcomment = second;
-      // });
-      //
-      // function nested(id, arr) {
-      //   return arr.filter((item, index) => {
-      //     if (Number(id) === Number(item.reply_to)) {
-      //
-      //       // if (state.draft && Number(item.id) === Number(state.draft.reply_to)) {
-      //       //   item.draft = state.draft;
-      //       // }
-      //
-      //       delete com[index];
-      //       return item;
-      //     }
-      //   });
-      // }
-
       let arr = Array.from(state.comments) || [];
 
       function nestedItems(id, arr) {
@@ -112,10 +85,6 @@ export default new Vuex.Store({
         state.loadingComment = true;
         state.comments = [];
         state.totalComments = payload.data.total_comments ?? 0;
-
-        // console.log("GET_COMMENT payload: ", payload);
-        // console.log("result comment: ", payload.data.data);
-        // console.log("Comment: ------ ", state.comments);
 
         setTimeout(() => {
           state.comments = payload.data.data;
@@ -229,10 +198,6 @@ export default new Vuex.Store({
       let text = state.globalTextareaFocused.text;
       let textSlice = text.slice(userName.length, text.length).trim();
 
-      // console.log("userName: ", userName);
-      // console.log("text: ", text);
-      // console.log("textSlice: ", textSlice);
-
       formData.append("method", "save_draft");
       formData.append("commentus_user_hash", state.hash);
       formData.append("site_id", state.siteId);
@@ -252,21 +217,6 @@ export default new Vuex.Store({
       payload.append("commentus_user_hash", Cookies.get("commentus_user_hash"));
       payload.append("url", location.href);
       payload.append("site_id", state.siteId);
-
-      // let date = new Date();
-      // let year = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-      // let time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-      //
-      // let newmsg = {
-      //   id: "62",
-      //   date: year + " " + time,
-      //   text: payload.get("text"),
-      //   reply_to: payload.get("reply_to"),
-      //   likes: {
-      //     upvote: "0"
-      //   },
-      //   user_data: state.userData
-      // };
 
       dispatch("AJAX", {
         url: state.apiUrl,
@@ -335,10 +285,6 @@ export default new Vuex.Store({
         state.hash = Cookies.get(hash);
         formData.append(hash, Cookies.get(hash));
       }
-      // console.log("Call GET__COOKIE");
-      // console.log("method: ", formData.get("method"));
-      // console.log("hash: ", formData.get("commentus_user_hash"))
-
       dispatch("AJAX", {
         url: state.apiUrl,
         data: formData,

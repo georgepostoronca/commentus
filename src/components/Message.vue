@@ -5,10 +5,6 @@
     ref="messageWrap"
     :class="{ 'wdg-open': ifTextareaOpen }"
   >
-    <!--    <div class="textarea-copy">-->
-    <!--      <pre ref="textareaCopy">{{ messageText }}</pre>-->
-    <!--    </div>-->
-
     <textarea
       class="wdg-add-comment__field"
       rows="1"
@@ -70,19 +66,35 @@
         </div>
 
         <!-- открытое состояние задается классом wdg-open -->
-        <div class="wdg-add-smile" ref="emojiParent" :class="{'active': emojiOpenClose}">
-          <div class="wdg-add-smile__btn" ref="smilesBtn" @click="emojiOpneClose">
+        <div
+          class="wdg-add-smile"
+          ref="emojiParent"
+          :class="{ active: emojiOpenClose }"
+        >
+          <div
+            class="wdg-add-smile__btn"
+            ref="smilesBtn"
+            @click="emojiOpneClose"
+          >
             <span class="wdg-icon-smile"></span>
           </div>
 
-          <div class="wdg-add-smile__list" ref="smilesList" :class="{'--top': emojiOpenCloseTop, '--left': emojiOpenCloseLeft}">
+          <div
+            class="wdg-add-smile__list"
+            ref="smilesList"
+            :class="{
+              '--top': emojiOpenCloseTop,
+              '--left': emojiOpenCloseLeft
+            }"
+          >
             <div class="wdg-wrap">
               <span
                 v-for="(item, index) in smile"
                 :key="index"
                 @click="selectSmile"
                 class="wdg-smile"
-                >{{ item }}</span>
+                >{{ item }}</span
+              >
             </div>
           </div>
         </div>
@@ -215,20 +227,16 @@ export default {
         replyto: this.replyto,
         name: this.valueText ?? ""
       };
-
-      // console.log(
-      //   "globalTextareaFocused",
-      //   this.$store.state.globalTextareaFocused
-      // );
     },
     getGlobalOffset(el) {
-      var x = 0, y = 0
+      var x = 0,
+        y = 0;
       while (el) {
-        x += el.offsetLeft
-        y += el.offsetTop
-        el = el.offsetParent
+        x += el.offsetLeft;
+        y += el.offsetTop;
+        el = el.offsetParent;
       }
-      return { left: x, top: y }
+      return { left: x, top: y };
     },
     ifEmojiTop() {
       let wdg = document.querySelector(".wdg");
@@ -244,7 +252,7 @@ export default {
         wdg.clientHeight
       );
 
-      console.log(offset.top + btn.offsetHeight, list.offsetHeight)
+      console.log(offset.top + btn.offsetHeight, list.offsetHeight);
 
       this.emojiOpenCloseTop =
         offset.top + btn.offsetHeight + list.offsetHeight > wdg.clientHeight;
@@ -333,10 +341,6 @@ export default {
         return false;
       }
 
-      // console.log("Msg: ", this.messageText);
-      // console.log("id: ", this.siteId);
-      // console.log("replyto: ", this.replyto);
-
       form.append("text", this.messageText);
       form.append("comment_id", this.siteId);
       form.append("reply_to", this.replyto);
@@ -352,11 +356,9 @@ export default {
         userData.constructor === Object
       ) {
         this.$store.commit("TOGGLE_POPUP", "login");
-        // console.log("Login");
       } else {
         this.$store.dispatch("SEND_COMMENT", form);
         this.resetTextarea();
-        // this.$forceUpdate();
       }
     }
   },
@@ -376,7 +378,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
 .wdg-add-smile {
   &__list {
     pointer-events: none;
@@ -426,33 +427,6 @@ export default {
 .wdg-smile {
   cursor: pointer;
 }
-
-//.textarea-copy {
-//  margin: 0;
-//  //height: 0;
-//  //overflow: hidden;
-//  outline: 1px solid red;
-//
-//  pre {
-//    margin: 0;
-//    font-family: "PT Sans", sans-serif;
-//    font-size: 16px;
-//    letter-spacing: 0.03px;
-//    min-height: 19px;
-//    width: calc(100% - 80px);
-//    //white-space: normal;
-//    padding: 3px 0 0;
-//    line-height: normal;
-//  }
-//}
-//.textarea2Copy {
-//  outline: 2px solid red;
-//}
-//
-//.wdg-add-comment.wdg-open .wdg-add-comment__field {
-//  height: auto;
-//  transition: 0s;
-//}
 
 .wdg-add-comment__field {
   overflow: auto;

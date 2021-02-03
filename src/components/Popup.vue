@@ -258,17 +258,6 @@ export default {
         location.href = encodeURI(link + this.currentUrl);
       });
 
-      // let promise = new Promise(resolve => {
-      //   resolve();
-      // });
-      //
-      // promise
-      //   .then(() => {
-      //     this.$store.dispatch("SAVE_DRAFT");
-      //   })
-      //   .then(() => {
-      //     console.log("then");
-      //   });
     },
     changeTypePopup(type) {
       this.$store.commit("TOGGLE_POPUP", type);
@@ -342,9 +331,6 @@ export default {
 }
 
 .wdg-copy-link__input {
-  //width: 0;
-  //height: 0;
-  //opacity: 0;
   position: absolute;
   background: transparent;
   z-index: -1;

@@ -9,17 +9,10 @@
       <div class="wdg-comment__inner">
         <div class="wdg-comment__top">
           <a :href="userLink" class="wdg-name">{{ name }}</a>
-<!--          <div class="wdg-reward">🏅</div>-->
           <div class="wdg-date">
             <time-ago :datetime="date" long :locale="locale"></time-ago>
           </div>
         </div>
-
-<!--                ID: {{ id }}-->
-<!--                <br />-->
-<!--                REPLY: {{ data.reply_to }}-->
-<!--                <br>-->
-<!--                LEVEL: {{ level }} {{ Number(level) < 4 }}-->
 
         <div class="wdg-comment__text">
           {{ text }}
@@ -37,8 +30,6 @@
 
           <!--Rate-->
           <div class="wdg-rate">
-            <!--            {{ ifLiked }}-->
-            <!--            {{ ifDisliked }}-->
             <div
               class="wdg-rate__like"
               :class="{ disabled: isLiked }"
@@ -78,9 +69,8 @@
       </div>
     </div>
 
-<!--    v-for="(val, index) in Number(level) <= 3 ? data.subcomment : []"-->
     <Comment
-        v-for="(val, index) in data.subcomment"
+      v-for="(val, index) in data.subcomment"
       :key="Number(val.id)"
       :index="index"
       :data="data.subcomment[index]"
@@ -89,9 +79,6 @@
       :idShare="Number(val.id)"
       :level="Number(level) + 1"
     ></Comment>
-    <!--      :ifreply="Number(level) <= 2"-->
-    <!--    <slot>-->
-    <!--    </slot>-->
   </div>
 </template>
 
@@ -197,24 +184,13 @@ export default {
         });
     },
     openShare() {
-      // console.log(this.idShare, e, id);
       this.$store.commit("TOGGLE_POPUP", "share");
-
-      // console.log("openShare");
-      // console.log(location.href, location.origin, "#commentus_widget_form", this.idShare);
-
       this.$store.state.popupShareLink =
-        location.origin + location.pathname + "#commentus_widget_form" + this.idShare;
-      // this.$emit(
-      //   "shareData",
-      //   location.href + "#commentus_widget_form" + this.idShare
-      // );
+        location.origin +
+        location.pathname +
+        "#commentus_widget_form" +
+        this.idShare;
     }
-  },
-  watch: {
-    // ifMessage: () => {
-    //   console.log("UPD ifMessage")
-    // }
   }
 };
 </script>

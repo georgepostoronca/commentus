@@ -15,7 +15,6 @@
         <div class="wdg-top">
           <div class="wdg-title">
             {{ messagesLength }}
-            <!--            page: {{ commentPage }}-->
           </div>
 
           <div class="wdg-main-sort">
@@ -46,15 +45,6 @@
           </div>
         </div>
 
-        <!--        <button @click="togglePopup('share')">Popup Share</button>-->
-        <!--        <button @click="togglePopup('email')">Popup Email</button>-->
-        <!--        <button @click="togglePopup('login')">Popup Login</button>-->
-        <!--        <span>{{ $store.state.openPopup }}</span>-->
-
-        <!--        <span>{{ $store.state.hash }}</span>-->
-        <!--        <br />-->
-        <!--        <span>{{ $store.state.userData }}</span>-->
-
         <Message
           type="root"
           :textarea="'PLACEHOLDER_COMMENT' | translate"
@@ -77,7 +67,6 @@
         </div>
 
         <div class="wdg-comments__wrap" :class="{ loading: loadingComment }">
-          <!--          v-if="commentsArray.length"-->
           <div class="wdg-comments__loading">
             <div class="loader"></div>
           </div>
@@ -93,39 +82,9 @@
               :idShare="Number(item.id)"
               :level="0"
               @shareData="popupShare($event)"
-            >
-<!--              <Comment-->
-<!--                v-for="(val, index) in item.subcomment"-->
-<!--                :key="Number(val.id)"-->
-<!--                :data="item.subcomment[index]"-->
-<!--                :reply="'PLACEHOLDER_REPLY' | translate"-->
-<!--                :replyto="Number(item.id)"-->
-<!--                @shareData="popupShare($event)"-->
-<!--              >-->
-<!--                <Comment-->
-<!--                  v-for="(val2, index2) in val.subcomment"-->
-<!--                  :key="Number(val2.id)"-->
-<!--                  :data="val.subcomment[index2]"-->
-<!--                  :reply="'PLACEHOLDER_REPLY' | translate"-->
-<!--                  :replyto="Number(val.subcomment.id)"-->
-<!--                  @shareData="popupShare($event)"-->
-<!--                >-->
-<!--                  {{ val2.subcomment }}-->
-<!--                  <Comment-->
-<!--                    v-for="(val3, index3) in val2.subcomment"-->
-<!--                    :key="Number(val3.id)"-->
-<!--                    :data="val.subcomment[index3]"-->
-<!--                    :reply="'PLACEHOLDER_REPLY' | translate"-->
-<!--                    :replyto="Number(va2.subcomment.id)"-->
-<!--                    @shareData="popupShare($event)"-->
-<!--                  ></Comment>-->
-<!--                </Comment>-->
-<!--                &lt;!&ndash;                  :ifreply="false"&ndash;&gt;-->
-<!--              </Comment>-->
-            </Comment>
+            ></Comment>
           </div>
 
-<!--          commentsArray.length-->
           <button
             class="wdg-comments__more"
             v-if="pageNotFinish"
@@ -277,10 +236,6 @@ export default {
     commentsSort(index) {
       this.$store.commit("CHANGE_SORT_SELECTED", this.sortItem[index]);
       this.sortOpen = false;
-
-      // console.log("sortItem: ", this.sortItem[index].type);
-      // console.log("state sortSelected: ", this.$store.state.sortSelected.type);
-
       this.$store.dispatch("GET_COMMENT");
     },
     togglePopup(e) {
@@ -288,7 +243,6 @@ export default {
     },
     popupShare(e) {
       this.$store.state.popupShareLink = e;
-      // console.log("popupShareLink: ", this.$store.state.popupShareLink)
     },
     hideSelect() {
       this.sortOpen = false;
@@ -302,20 +256,11 @@ export default {
   },
   created() {
     this.$store.dispatch("GET_COMMENT");
-    // this.$store.dispatch("GET_COOKIE");
-    // this.$store.dispatch("GET_DRAFT");
-
-
   },
   mounted() {
     // Scroll To
     let link = location.hash;
     if (link.includes("commentus_widget_form")) {
-      // console.log(
-      //     this.$refs.wdgRoot.offsetTop,
-      //     this.$refs,
-      //     this.$refs.wdgRoot
-      // )
       setTimeout(() => {
         window.scroll({
           behavior: "smooth",
@@ -323,8 +268,6 @@ export default {
           top: this.$refs.wdgRoot.offsetTop - 10
         });
       }, 1000);
-
-      // this.$refs.wdgRoot.scrollIntoView({block: "start", behavior: "smooth"});
     }
   },
   directives: {

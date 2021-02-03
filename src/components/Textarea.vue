@@ -64,9 +64,6 @@ export default {
     };
   },
   methods: {
-    // resize () {
-    //   this.inputHeight = `${this.$refs.shadow.scrollHeight}px`
-    // },
     selectSmile(e) {
       let textarea = this.$refs.messageTextarea;
       let smile = e.target.innerText;
@@ -78,16 +75,9 @@ export default {
     },
 
     cursorPosition(e) {
-      // console.log(e.target.scrollHeight);
-
       let content = e.target;
-      if (
-        content.selectionStart != null &&
-        content.selectionStart != undefined
-      ) {
-        let position = content.selectionStart;
-        this.curPosition = position;
-        // console.log(position);
+      if (content.selectionStart != null) {
+        this.curPosition = content.selectionStart;
       } else {
         return false;
       }
